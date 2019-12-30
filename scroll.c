@@ -111,13 +111,13 @@ scrollup(void)
 		rows -= lp->len / cols + 1;
 
 	if (rows < 0) {
-		write(1, lp->str + -rows * cols, lp->len - -rows * cols);
+		write(STDOUT_FILENO, lp->str + -rows * cols, lp->len - -rows * cols);
 		rows = 0;
 		lp = lp->next;
 	}
 
 	for (; lp && lp != bottom->next; lp = lp->next)
-		write(1, lp->str, lp->len);
+		write(STDOUT_FILENO, lp->str, lp->len);
 }
 
 int
@@ -131,7 +131,7 @@ main(int argc, char *argv[])
 	if (atexit(reset))
 		die("atexit:");
 
-	if (ioctl(1, TIOCGWINSZ, &ws) < 0)
+	if (ioctl(STDOUT_FILENO, TIOCGWINSZ, &ws) < 0)
 		die("ioctl:");
 
 	child = forkpty(&mfd, NULL, &dfl, &ws);
@@ -190,7 +190,7 @@ main(int argc, char *argv[])
 				p = buf;
 				addline(buf);
 			}
-			if (write(1, &c, 1) < 0)
+			if (write(STDOUT_FILENO, &c, 1) < 0)
 				die("write:");
 		}
 	}
