@@ -1,0 +1,3 @@
+This program provides a schrollback buffer for a terminals like st(1).
+It compiles on OpenBSD and is in an experimental state.  Its not recommended
+for productive use.
