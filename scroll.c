@@ -1,18 +1,24 @@
-#define _DEFAULT_SOURCE
-#include <stdio.h>
-#include <termios.h>
+//#define _DEFAULT_SOURCE
+
+#include <sys/types.h>
 #include <sys/ioctl.h>
 #include <sys/select.h>
-#include <stdlib.h>
-#include <pty.h>
-#include <sys/types.h>
-#include <unistd.h>
-#include <fcntl.h>
-#include <stdarg.h>
-#include <string.h>
-#include <signal.h>
 #include <sys/wait.h>
+
+#include <assert.h>
 #include <errno.h>
+#include <fcntl.h>
+#include <signal.h>
+#include <stdarg.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <termios.h>
+#include <unistd.h>
+
+// TODO: OpenBSD/Linux ifdef
+#include <util.h>
+//#include <pty.h>
 
 typedef struct Line Line;
 struct Line {
@@ -47,6 +53,8 @@ die(const char *fmt, ...)
 void
 sigchld(int sig)
 {
+	assert(sig == SIGCHLD);
+
 	pid_t pid;
 	while ((pid = waitpid(-1, NULL, WNOHANG)) > 0)
 		if (pid == child)
@@ -56,6 +64,8 @@ sigchld(int sig)
 void
 sigwinch(int sig)
 {
+	assert(sig == SIGWINCH);
+
 	if (ioctl(1, TIOCGWINSZ, &ws) < 0)
 		die("ioctl:");
 	if (ioctl(mfd, TIOCSWINSZ, &ws) < 0)
