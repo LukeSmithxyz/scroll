@@ -135,9 +135,9 @@ main(int argc, char *argv[])
 		die("ioctl:");
 
 	child = forkpty(&mfd, NULL, &dfl, &ws);
-	if (child < 0)
+	if (child == -1)
 		die("forkpty:");
-	if (!child) {
+	if (child == 0) {	/* child */
 		execvp(argv[1], argv + 1);
 		perror("execvp");
 		_exit(127);
