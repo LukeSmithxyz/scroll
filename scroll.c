@@ -124,7 +124,7 @@ int
 main(int argc, char *argv[])
 {
 	if (argc <= 1)
-		die("usage");
+		die("usage: scroll <program>");
 
 	if (tcgetattr(0, &dfl) < 0)
 		die("tcgetattr:");
