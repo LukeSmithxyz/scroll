@@ -123,6 +123,11 @@ scrollup(void)
 int
 main(int argc, char *argv[])
 {
+	if (isatty(STDIN_FILENO) == 0)
+		die("stdin it not a tty");
+	if (isatty(STDOUT_FILENO) == 0)
+		die("stdout it not a tty");
+
 	if (argc <= 1)
 		die("usage: scroll <program>");
 
