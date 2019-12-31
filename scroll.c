@@ -66,9 +66,9 @@ sigwinch(int sig)
 {
 	assert(sig == SIGWINCH);
 
-	if (ioctl(STDOUT_FILENO, TIOCGWINSZ, &ws) < 0)
+	if (ioctl(STDOUT_FILENO, TIOCGWINSZ, &ws) == -1)
 		die("ioctl:");
-	if (ioctl(mfd, TIOCSWINSZ, &ws) < 0)
+	if (ioctl(mfd, TIOCSWINSZ, &ws) == -1)
 		die("ioctl:");
 	kill(-child, SIGWINCH);
 }
@@ -76,7 +76,7 @@ sigwinch(int sig)
 void
 reset(void)
 {
-	if (tcsetattr(STDIN_FILENO, TCSANOW, &dfl) < 0)
+	if (tcsetattr(STDIN_FILENO, TCSANOW, &dfl) == -1)
 		die("tcsetattr:");
 }
 
@@ -131,7 +131,7 @@ main(int argc, char *argv[])
 	if (argc <= 1)
 		die("usage: scroll <program>");
 
-	if (tcgetattr(STDIN_FILENO, &dfl) < 0)
+	if (tcgetattr(STDIN_FILENO, &dfl) == -1)
 		die("tcgetattr:");
 	if (atexit(reset))
 		die("atexit:");
@@ -154,9 +154,9 @@ main(int argc, char *argv[])
 		die("signal:");
 
 	int f;
-	if ((f = fcntl(mfd, F_GETFL)) < 0)
+	if ((f = fcntl(mfd, F_GETFL)) == -1)
 		die("fcntl:");
-	if (fcntl(mfd, F_SETFL, f /*| O_NONBLOCK*/) < 0)
+	if (fcntl(mfd, F_SETFL, f /*| O_NONBLOCK*/) == -1)
 		die("fcntl:");
 
 	struct termios new;
@@ -164,7 +164,7 @@ main(int argc, char *argv[])
 	cfmakeraw(&new);
 	new.c_cc[VMIN ] = 1;
 	new.c_cc[VTIME] = 0;
-	if (tcsetattr(STDIN_FILENO, TCSANOW, &new) < 0)
+	if (tcsetattr(STDIN_FILENO, TCSANOW, &new) == -1)
 		die("tcsetattr:");
 
 	fd_set rd;
@@ -184,7 +184,7 @@ main(int argc, char *argv[])
 				die("read:");
 			if (c == 17) /* ^Q */
 				scrollup();
-			else if (write(mfd, &c, 1) < 0)
+			else if (write(mfd, &c, 1) == -1)
 				die("write:");
 		}
 		if (FD_ISSET(mfd, &rd)) {
@@ -195,7 +195,7 @@ main(int argc, char *argv[])
 				p = buf;
 				addline(buf);
 			}
-			if (write(STDOUT_FILENO, &c, 1) < 0)
+			if (write(STDOUT_FILENO, &c, 1) == -1)
 				die("write:");
 		}
 	}
