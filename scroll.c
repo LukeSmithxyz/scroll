@@ -76,7 +76,7 @@ sigwinch(int sig)
 void
 reset(void)
 {
-	if (tcsetattr(0, TCSANOW, &dfl) < 0)
+	if (tcsetattr(STDIN_FILENO, TCSANOW, &dfl) < 0)
 		die("tcsetattr:");
 }
 
@@ -126,7 +126,7 @@ main(int argc, char *argv[])
 	if (argc <= 1)
 		die("usage: scroll <program>");
 
-	if (tcgetattr(0, &dfl) < 0)
+	if (tcgetattr(STDIN_FILENO, &dfl) < 0)
 		die("tcgetattr:");
 	if (atexit(reset))
 		die("atexit:");
@@ -159,7 +159,7 @@ main(int argc, char *argv[])
 	cfmakeraw(&new);
 	new.c_cc[VMIN ] = 1;
 	new.c_cc[VTIME] = 0;
-	if (tcsetattr(0, TCSANOW, &new) < 0)
+	if (tcsetattr(STDIN_FILENO, TCSANOW, &new) < 0)
 		die("tcsetattr:");
 
 	fd_set rd;
@@ -168,14 +168,14 @@ main(int argc, char *argv[])
 		char c;
 
 		FD_ZERO(&rd);
-		FD_SET(  0, &rd);
+		FD_SET(STDIN_FILENO, &rd);
 		FD_SET(mfd, &rd);
 
 		if (select(mfd + 1, &rd, NULL, NULL, NULL) < 0 && errno != EINTR)
 			die("select:");
 
-		if (FD_ISSET(0, &rd)) {
-			if (read(0, &c, 1) <= 0 && errno != EINTR)
+		if (FD_ISSET(STDIN_FILENO, &rd)) {
+			if (read(STDIN_FILENO, &c, 1) <= 0 && errno != EINTR)
 				die("read:");
 			if (c == 17) /* ^Q */
 				scrollup();
