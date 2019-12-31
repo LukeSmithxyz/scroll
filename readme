@@ -1,3 +1,8 @@
-This program provides a schrollback buffer for a terminals like st(1).
-It compiles on OpenBSD and is in an experimental state.  Its not recommended
-for productive use.
+This program provides a schrollback buffer for a terminals like st(1).  It
+compiles on OpenBSD.
+
+At the moment it is in an experimental state.  Its not recommended for
+productive use.
+
+First version of this program is from Roberto E. Vargas Caballero:
+	https://lists.suckless.org/dev/1703/31256.html
