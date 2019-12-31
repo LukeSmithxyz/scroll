@@ -66,7 +66,7 @@ sigwinch(int sig)
 {
 	assert(sig == SIGWINCH);
 
-	if (ioctl(1, TIOCGWINSZ, &ws) < 0)
+	if (ioctl(STDOUT_FILENO, TIOCGWINSZ, &ws) < 0)
 		die("ioctl:");
 	if (ioctl(mfd, TIOCSWINSZ, &ws) < 0)
 		die("ioctl:");
