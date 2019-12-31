@@ -159,8 +159,7 @@ main(int argc, char *argv[])
 	if (fcntl(mfd, F_SETFL, f /*| O_NONBLOCK*/) == -1)
 		die("fcntl:");
 
-	struct termios new;
-	new = dfl;
+	struct termios new = dfl;
 	cfmakeraw(&new);
 	new.c_cc[VMIN ] = 1;
 	new.c_cc[VTIME] = 0;
