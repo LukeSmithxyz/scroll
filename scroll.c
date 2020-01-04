@@ -1,5 +1,3 @@
-//#define _DEFAULT_SOURCE
-
 #include <sys/types.h>
 #include <sys/ioctl.h>
 #include <sys/select.h>
@@ -16,9 +14,13 @@
 #include <termios.h>
 #include <unistd.h>
 
-// TODO: OpenBSD/Linux ifdef
-#include <util.h>
-//#include <pty.h>
+#if   defined(__linux)
+ #include <pty.h>
+#elif defined(__OpenBSD__) || defined(__NetBSD__) || defined(__APPLE__)
+ #include <util.h>
+#elif defined(__FreeBSD__) || defined(__DragonFly__)
+ #include <libutil.h>
+#endif
 
 typedef struct Line Line;
 struct Line {
