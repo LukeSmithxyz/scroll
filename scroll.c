@@ -83,18 +83,18 @@ reset(void)
 }
 
 void
-addline(char *str)
+addline(char *str, size_t size)
 {
 	struct line *line = malloc(sizeof *line);
 
 	if (line == NULL)
 		die("malloc:");
 
-	line->len = strlen(str);
-	line->str = strdup(str);
-
+	line->len = size;
+	line->str = malloc(size);
 	if (line->str == NULL)
-		die("strdup");
+		die("malloc:");
+	memcpy(line->str, str, size);
 
 	bottom = line;
 
@@ -185,8 +185,12 @@ main(int argc, char *argv[])
 		die("tcsetattr:");
 
 	fd_set rd;
-	char buf[10000], *p = buf;
-	memset(buf, 0, sizeof buf);
+	size_t size = BUFSIZ, pos = 0;
+	char *buf = calloc(size, sizeof *buf);
+	if (buf == NULL)
+		die("calloc:");
+	memset(buf, 0, size);
+
 	for (;;) {
 		char c;
 
@@ -208,11 +212,17 @@ main(int argc, char *argv[])
 		if (FD_ISSET(mfd, &rd)) {
 			if (read(mfd, &c, 1) <= 0 && errno != EINTR)
 				die("read:");
-			*p++ = c;
+			buf[pos++] = c;
+			if (pos == size) {
+				size *= 2;
+				buf = realloc(buf, size);
+				if (buf == NULL)
+					die("realloc:");
+			}
 			if (c == '\n') {
-				p = buf;
-				addline(buf);
-				memset(buf, 0, sizeof buf);
+				addline(buf, pos);
+				memset(buf, 0, size);
+				pos = 0;
 			}
 			if (write(STDOUT_FILENO, &c, 1) == -1)
 				die("write:");
