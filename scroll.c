@@ -140,36 +140,21 @@ addline(char *buf, size_t size)
 void
 scrollup(void)
 {
-	struct line *line;
-	int rows = ws.ws_row-1;
-	int cols = ws.ws_col;
-
-	if (bottom == NULL || (bottom = TAILQ_NEXT(bottom, entries)) == NULL)
-		return;
-
-	/* TODO: save cursor position */
-
-	/* scroll one line UP */
-	//write(STDOUT_FILENO, "\033[1S", 4);
-
-	/* scroll one line DOWN  */
-	write(STDOUT_FILENO, "\033[1T", 4);
+	int rows;
+	printf("\033[%dS", ws.ws_row);
+	fflush(stdout);
 
 	/* set cursor position */
-	/* Esc[Line;ColumnH */
 	write(STDOUT_FILENO, "\033[0;0H", 6);
 
-	for (line = bottom; line != NULL && rows > 0; line = TAILQ_NEXT(line, entries)) {
-		rows -= line->len / cols + 1;
-		//printf("rows: %d\n", rows);
+	for (rows = 0;bottom != NULL && rows < 2 * ws.ws_row; rows++) {
+		bottom = TAILQ_NEXT(bottom, entries);
 	}
 
-	if (line == NULL)
-		return;
-
-	write(STDOUT_FILENO, line->buf, line->size);
-
-	return;
+	for (; bottom != NULL && rows > ws.ws_row; rows--) {
+		bottom = TAILQ_PREV(bottom, tailhead, entries);
+		write(STDOUT_FILENO, bottom->buf, bottom->len);
+	}
 }
 
 int
