@@ -2,3 +2,4 @@
  * Alternative Screen mode detection
  * scroll down function
  * scroll/jump to buttom on new input
+ * make scroll configurable by config.h in suckless style
