@@ -29,7 +29,7 @@ struct line {
 	TAILQ_ENTRY(line) entries;
 	size_t size;
 	size_t len;
-	char *str;
+	char *buf;
 } *bottom;
 
 pid_t child;
@@ -84,13 +84,13 @@ reset(void)
 }
 
 size_t
-strelen(const char *str, size_t size)
+strelen(const char *buf, size_t size)
 {
 	enum {CHAR, BREK, ESC} state = CHAR;
 	size_t len = 0;
 
 	for (size_t i = 0; i < size; i++) {
-		char c = str[i];
+		char c = buf[i];
 
 		switch (state) {
 		case CHAR:
@@ -118,7 +118,7 @@ strelen(const char *str, size_t size)
 }
 
 void
-addline(char *str, size_t size)
+addline(char *buf, size_t size)
 {
 	struct line *line = malloc(sizeof *line);
 
@@ -126,11 +126,11 @@ addline(char *str, size_t size)
 		die("malloc:");
 
 	line->size = size;
-	line->len = strelen(str, size);
-	line->str = malloc(size);
-	if (line->str == NULL)
+	line->len = strelen(buf, size);
+	line->buf = malloc(size);
+	if (line->buf == NULL)
 		die("malloc:");
-	memcpy(line->str, str, size);
+	memcpy(line->buf, buf, size);
 
 	bottom = line;
 
@@ -167,7 +167,7 @@ scrollup(void)
 	if (line == NULL)
 		return;
 
-	write(STDOUT_FILENO, line->str, line->size);
+	write(STDOUT_FILENO, line->buf, line->size);
 
 	return;
 }
