@@ -29,7 +29,7 @@ struct line {
 	TAILQ_ENTRY(line) entries;
 	size_t len;
 	char *str;
-} *b;
+} *bottom;
 
 pid_t child;
 int mfd;
@@ -96,7 +96,7 @@ addline(char *str)
 	if (line->str == NULL)
 		die("strdup");
 
-	b = line;
+	bottom = line;
 
 	TAILQ_INSERT_HEAD(&head, line, entries);
 }
@@ -108,7 +108,7 @@ scrollup(void)
 	int rows = ws.ws_row-1;
 	int cols = ws.ws_col;
 
-	if (b == NULL || (b = TAILQ_NEXT(b, entries)) == NULL)
+	if (bottom == NULL || (bottom = TAILQ_NEXT(bottom, entries)) == NULL)
 		return;
 
 	/* TODO: save cursor position */
@@ -123,7 +123,7 @@ scrollup(void)
 	/* Esc[Line;ColumnH */
 	write(STDOUT_FILENO, "\033[0;0H", 6);
 
-	for (l = b; l != NULL && rows > 0; l = TAILQ_NEXT(l, entries)) {
+	for (l = bottom; l != NULL && rows > 0; l = TAILQ_NEXT(l, entries)) {
 		rows -= l->len / cols + 1;
 		//printf("rows: %d\n", rows);
 	}
