@@ -2,6 +2,7 @@
 #include <sys/ioctl.h>
 #include <sys/select.h>
 #include <sys/wait.h>
+#include <sys/queue.h>
 
 #include <assert.h>
 #include <errno.h>
@@ -22,19 +23,18 @@
  #include <libutil.h>
 #endif
 
-typedef struct Line Line;
-struct Line {
-	Line *next;
-	Line *prev;
+TAILQ_HEAD(tailhead, line) head;
+
+struct line {
+	TAILQ_ENTRY(line) entries;
 	size_t len;
-	char str[];
-};
+	char *str;
+} *b;
 
 pid_t child;
 int mfd;
 struct termios dfl;
 struct winsize ws;
-Line *lines, *bottom;
 
 void
 die(const char *fmt, ...)
@@ -85,46 +85,62 @@ reset(void)
 void
 addline(char *str)
 {
-	size_t len = strchr(str, '\n') - str + 1;
-	Line *lp = malloc(sizeof(*lp) + len * sizeof(*lp->str));
+	struct line *line = malloc(sizeof *line);
 
-	if (!lp)
+	if (line == NULL)
 		die("malloc:");
-	memcpy(lp->str, str, len);
-	lp->len = len;
-	if (lines)
-		lines->next = lp;
-	lp->prev = lines;
-	lp->next = NULL;
-	bottom = lines = lp;
+
+	line->len = strlen(str);
+	line->str = strdup(str);
+
+	if (line->str == NULL)
+		die("strdup");
+
+	b = line;
+
+	TAILQ_INSERT_HEAD(&head, line, entries);
 }
 
 void
 scrollup(void)
 {
-	Line *lp;
+	struct line *l;
 	int rows = ws.ws_row-1;
 	int cols = ws.ws_col;
 
-	if (!bottom || !(bottom = bottom->prev))
+	if (b == NULL || (b = TAILQ_NEXT(b, entries)) == NULL)
 		return;
 
-	for (lp = bottom; lp && rows > 0; lp = lp->prev)
-		rows -= lp->len / cols + 1;
+	/* TODO: save cursor position */
 
-	if (rows < 0) {
-		write(STDOUT_FILENO, lp->str + -rows * cols, lp->len - -rows * cols);
-		rows = 0;
-		lp = lp->next;
+	/* scroll one line UP */
+	//write(STDOUT_FILENO, "\033[1S", 4);
+
+	/* scroll one line DOWN  */
+	write(STDOUT_FILENO, "\033[1T", 4);
+
+	/* set cursor position */
+	/* Esc[Line;ColumnH */
+	write(STDOUT_FILENO, "\033[0;0H", 6);
+
+	for (l = b; l != NULL && rows > 0; l = TAILQ_NEXT(l, entries)) {
+		rows -= l->len / cols + 1;
+		//printf("rows: %d\n", rows);
 	}
 
-	for (; lp && lp != bottom->next; lp = lp->next)
-		write(STDOUT_FILENO, lp->str, lp->len);
+	if (l == NULL)
+		return;
+
+	write(STDOUT_FILENO, l->str, l->len);
+
+	return;
 }
 
 int
 main(int argc, char *argv[])
 {
+	TAILQ_INIT(&head);
+
 	if (isatty(STDIN_FILENO) == 0)
 		die("stdin it not a tty");
 	if (isatty(STDOUT_FILENO) == 0)
@@ -170,6 +186,7 @@ main(int argc, char *argv[])
 
 	fd_set rd;
 	char buf[10000], *p = buf;
+	memset(buf, 0, sizeof buf);
 	for (;;) {
 		char c;
 
@@ -195,6 +212,7 @@ main(int argc, char *argv[])
 			if (c == '\n') {
 				p = buf;
 				addline(buf);
+				memset(buf, 0, sizeof buf);
 			}
 			if (write(STDOUT_FILENO, &c, 1) == -1)
 				die("write:");
