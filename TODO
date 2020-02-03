@@ -1,0 +1,6 @@
+ * strlen function which is aware of ESC sequences and unicode
+ * dynamic input buffer
+ * Alternative Screen mode detection
+ * scroll down function
+ * scroll/jump to buttom on new input
+ * use mem instead of str functions for \0-Bytes
