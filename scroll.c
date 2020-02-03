@@ -104,7 +104,7 @@ addline(char *str, size_t size)
 void
 scrollup(void)
 {
-	struct line *l;
+	struct line *line;
 	int rows = ws.ws_row-1;
 	int cols = ws.ws_col;
 
@@ -123,15 +123,15 @@ scrollup(void)
 	/* Esc[Line;ColumnH */
 	write(STDOUT_FILENO, "\033[0;0H", 6);
 
-	for (l = bottom; l != NULL && rows > 0; l = TAILQ_NEXT(l, entries)) {
-		rows -= l->len / cols + 1;
+	for (line = bottom; line != NULL && rows > 0; line = TAILQ_NEXT(line, entries)) {
+		rows -= line->len / cols + 1;
 		//printf("rows: %d\n", rows);
 	}
 
-	if (l == NULL)
+	if (line == NULL)
 		return;
 
-	write(STDOUT_FILENO, l->str, l->len);
+	write(STDOUT_FILENO, line->str, line->len);
 
 	return;
 }
