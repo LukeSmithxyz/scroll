@@ -27,6 +27,7 @@ TAILQ_HEAD(tailhead, line) head;
 
 struct line {
 	TAILQ_ENTRY(line) entries;
+	size_t size;
 	size_t len;
 	char *str;
 } *bottom;
@@ -82,6 +83,40 @@ reset(void)
 		die("tcsetattr:");
 }
 
+size_t
+strelen(const char *str, size_t size)
+{
+	enum {CHAR, BREK, ESC} state = CHAR;
+	size_t len = 0;
+
+	for (size_t i = 0; i < size; i++) {
+		char c = str[i];
+
+		switch (state) {
+		case CHAR:
+			if (c == '\033')
+				state = BREK;
+			else
+				len++;
+			break;
+		case BREK:
+			if (c == '[') {
+				state = ESC;
+			} else {
+				state = CHAR;
+				len++;
+			}
+			break;
+		case ESC:
+			if (c >= 64 && c <= 126)
+				state = CHAR;
+			break;
+		}
+	}
+
+	return len;
+}
+
 void
 addline(char *str, size_t size)
 {
@@ -90,7 +125,8 @@ addline(char *str, size_t size)
 	if (line == NULL)
 		die("malloc:");
 
-	line->len = size;
+	line->size = size;
+	line->len = strelen(str, size);
 	line->str = malloc(size);
 	if (line->str == NULL)
 		die("malloc:");
@@ -131,7 +167,7 @@ scrollup(void)
 	if (line == NULL)
 		return;
 
-	write(STDOUT_FILENO, line->str, line->len);
+	write(STDOUT_FILENO, line->str, line->size);
 
 	return;
 }

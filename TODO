@@ -1,4 +1,4 @@
- * strlen function which is aware of ESC sequences and unicode
+ * strlen function which is aware of unicode
  * Alternative Screen mode detection
  * scroll down function
  * scroll/jump to buttom on new input
