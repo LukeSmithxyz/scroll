@@ -225,7 +225,6 @@ main(int argc, char *argv[])
 	char *buf = calloc(size, sizeof *buf);
 	if (buf == NULL)
 		die("calloc:");
-	memset(buf, 0, size);
 
 	for (;;) {
 		char c;
