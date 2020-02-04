@@ -83,6 +83,7 @@ reset(void)
 		die("tcsetattr:");
 }
 
+/* Count string length w/o ansi esc sequences. */
 size_t
 strelen(const char *buf, size_t size)
 {
