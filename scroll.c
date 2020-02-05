@@ -63,13 +63,15 @@ die(const char *fmt, ...)
 	va_start(ap, fmt);
 	vfprintf(stderr, fmt, ap);
 	va_end(ap);
+
 	if (fmt[0] && fmt[strlen(fmt)-1] == ':') {
 		fputc(' ', stderr);
 		perror(NULL);
 	} else {
 		fputc('\n', stderr);
 	}
-	exit(1);
+
+	exit(EXIT_FAILURE);
 }
 
 void
@@ -163,15 +165,16 @@ void
 scrollup(void)
 {
 	int rows;
+
+	/* move the text in terminal n lines down */
 	printf("\033[%dS", ws.ws_row);
 	fflush(stdout);
 
 	/* set cursor position */
 	write(STDOUT_FILENO, "\033[0;0H", 6);
 
-	for (rows = 0;bottom != NULL && rows < 2 * ws.ws_row; rows++) {
+	for (rows = 0; bottom != NULL && rows < 2 * ws.ws_row; rows++)
 		bottom = TAILQ_NEXT(bottom, entries);
-	}
 
 	for (; bottom != NULL && rows > ws.ws_row; rows--) {
 		bottom = TAILQ_PREV(bottom, tailhead, entries);
@@ -271,5 +274,6 @@ main(int argc, char *argv[])
 				die("write:");
 		}
 	}
-	return 0;
+
+	return EXIT_SUCCESS;
 }
