@@ -82,7 +82,7 @@ sigchld(int sig)
 
 	while ((pid = waitpid(-1, &status, WNOHANG)) > 0)
 		if (pid == child)
-			exit(status);
+			exit(WEXITSTATUS(status));
 }
 
 void
@@ -255,8 +255,6 @@ main(int argc, char *argv[])
 			ssize_t n = read(mfd, &c, 1);
 			if (n == -1 && errno != EINTR)
 				die("read:");
-			if (n == 0)
-				return 0;
 			buf[pos++] = c;
 			if (pos == size) {
 				size *= 2;
