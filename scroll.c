@@ -75,12 +75,14 @@ die(const char *fmt, ...)
 void
 sigchld(int sig)
 {
+	pid_t pid;
+	int status;
+
 	assert(sig == SIGCHLD);
 
-	pid_t pid;
-	while ((pid = waitpid(-1, NULL, WNOHANG)) > 0)
+	while ((pid = waitpid(-1, &status, WNOHANG)) > 0)
 		if (pid == child)
-			die("child died");
+			exit(status);
 }
 
 void
@@ -250,8 +252,11 @@ main(int argc, char *argv[])
 				die("write:");
 		}
 		if (FD_ISSET(mfd, &rd)) {
-			if (read(mfd, &c, 1) <= 0 && errno != EINTR)
+			ssize_t n = read(mfd, &c, 1);
+			if (n == -1 && errno != EINTR)
 				die("read:");
+			if (n == 0)
+				return 0;
 			buf[pos++] = c;
 			if (pos == size) {
 				size *= 2;
