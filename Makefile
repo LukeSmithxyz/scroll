@@ -10,5 +10,5 @@ clean:
 
 test: scroll
 	# return code passthrough of childs
-	if ! ./scroll /usr/bin/true;  then exit 1; fi
-	if   ./scroll /usr/bin/false; then exit 1; fi
+	if ! ./scroll true;  then exit 1; fi
+	if   ./scroll false; then exit 1; fi
