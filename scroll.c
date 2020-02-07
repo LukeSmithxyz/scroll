@@ -167,8 +167,7 @@ scrollup(void)
 	int rows;
 
 	/* move the text in terminal n lines down */
-	printf("\033[%dS", ws.ws_row);
-	fflush(stdout);
+	dprintf(STDOUT_FILENO, "\033[%dS", ws.ws_row);
 
 	/* set cursor position */
 	write(STDOUT_FILENO, "\033[0;0H", 6);
