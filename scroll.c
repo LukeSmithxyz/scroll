@@ -19,13 +19,13 @@
 
 #include <sys/types.h>
 #include <sys/ioctl.h>
-#include <sys/select.h>
 #include <sys/wait.h>
 #include <sys/queue.h>
 
 #include <assert.h>
 #include <errno.h>
 #include <fcntl.h>
+#include <poll.h>
 #include <signal.h>
 #include <stdarg.h>
 #include <stdio.h>
@@ -237,23 +237,23 @@ main(int argc, char *argv[])
 	if (tcsetattr(STDIN_FILENO, TCSANOW, &new) == -1)
 		die("tcsetattr:");
 
-	fd_set rd;
 	size_t size = BUFSIZ, pos = 0;
 	char *buf = calloc(size, sizeof *buf);
 	if (buf == NULL)
 		die("calloc:");
 
+	struct pollfd pfd[2] = {
+		{STDIN_FILENO, POLLIN, 0},
+		{mfd,          POLLIN, 0}
+	};
+
 	for (;;) {
 		char c;
 
-		FD_ZERO(&rd);
-		FD_SET(STDIN_FILENO, &rd);
-		FD_SET(mfd, &rd);
+		if (poll(pfd, 2, 0) == -1 && errno != EINTR)
+			die("poll:");
 
-		if (select(mfd + 1, &rd, NULL, NULL, NULL) < 0 && errno != EINTR)
-			die("select:");
-
-		if (FD_ISSET(STDIN_FILENO, &rd)) {
+		if (pfd[0].revents & POLLIN) {
 			if (read(STDIN_FILENO, &c, 1) <= 0 && errno != EINTR)
 				die("read:");
 			if (c == 17) /* ^Q */
@@ -261,7 +261,7 @@ main(int argc, char *argv[])
 			else if (write(mfd, &c, 1) == -1)
 				die("write:");
 		}
-		if (FD_ISSET(mfd, &rd)) {
+		if (pfd[1].revents & POLLIN) {
 			ssize_t n = read(mfd, &c, 1);
 			if (n == -1 && errno != EINTR)
 				die("read:");
