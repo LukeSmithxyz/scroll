@@ -165,6 +165,7 @@ void
 scrollup(void)
 {
 	int rows;
+	int first = 0;
 
 	/* move the text in terminal n lines down */
 	dprintf(STDOUT_FILENO, "\033[%dS", ws.ws_row);
@@ -172,12 +173,19 @@ scrollup(void)
 	/* set cursor position */
 	write(STDOUT_FILENO, "\033[0;0H", 6);
 
+	if (TAILQ_FIRST(&head) == bottom)
+		first = 1;
+
 	for (rows = 0; bottom != NULL && rows < 2 * ws.ws_row; rows++)
 		bottom = TAILQ_NEXT(bottom, entries);
 
-	for (; bottom != NULL && rows > ws.ws_row; rows--) {
-		bottom = TAILQ_PREV(bottom, tailhead, entries);
-		write(STDOUT_FILENO, bottom->buf, bottom->len);
+	for (; rows > ws.ws_row - first;) {
+		if ((bottom = TAILQ_PREV(bottom, tailhead, entries)) == NULL)
+			break;
+		if (--rows > ws.ws_row - first)
+			write(STDOUT_FILENO, bottom->buf, bottom->size);
+		else /* last line w/o "/r/n" */
+			write(STDOUT_FILENO, bottom->buf, bottom->size - 2);
 	}
 }
 
