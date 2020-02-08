@@ -1,4 +1,4 @@
-CFLAGS += -std=c99 -pedantic -Wall -Wextra
+CFLAGS += -std=c99 -pedantic -Wall -Wextra -g
 LDLIBS += -lutil
 CPPFLAGS += -D_DEFAULT_SOURCE
 

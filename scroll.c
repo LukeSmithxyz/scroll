@@ -173,12 +173,15 @@ scrollup(void)
 	/* set cursor position */
 	write(STDOUT_FILENO, "\033[0;0H", 6);
 
+	/* check if the input line is on the bottom of the screen */
 	if (TAILQ_FIRST(&head) == bottom)
 		first = 1;
 
+	/* wind back bottom pointer by two pages */
 	for (rows = 0; bottom != NULL && rows < 2 * ws.ws_row; rows++)
 		bottom = TAILQ_NEXT(bottom, entries);
 
+	/* print one page */
 	for (; rows > ws.ws_row - first;) {
 		if ((bottom = TAILQ_PREV(bottom, tailhead, entries)) == NULL)
 			break;
