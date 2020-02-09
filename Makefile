@@ -10,6 +10,8 @@ install: scroll
 	cp scroll ${BINDIR}
 
 test: scroll
-	# return code passthrough of childs
+	# check usage
+	if ./scroll; then exit 1; fi
+	# check exit passthrough of child
 	if ! ./scroll true;  then exit 1; fi
 	if   ./scroll false; then exit 1; fi
