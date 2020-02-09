@@ -1,12 +1,13 @@
-CFLAGS += -std=c99 -pedantic -Wall -Wextra -g
-LDLIBS += -lutil
-CPPFLAGS += -D_DEFAULT_SOURCE
+include config.mk
 
-.PHONY: all clean test
+.PHONY: all clean install test
 
 all: scroll
 clean:
 	rm -f scroll
+
+install: scroll
+	cp scroll ${BINDIR}
 
 test: scroll
 	# return code passthrough of childs
