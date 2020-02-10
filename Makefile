@@ -8,6 +8,7 @@ clean:
 
 install: scroll
 	cp scroll ${BINDIR}
+	cp scroll.1 ${MAN1DIR}
 
 test: scroll
 	# check usage
