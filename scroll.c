@@ -49,7 +49,7 @@ struct line {
 	size_t size;
 	size_t len;
 	char *buf;
-} *bottom;
+} *bottom = NULL;
 
 pid_t child;
 int mfd;
