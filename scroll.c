@@ -280,7 +280,7 @@ main(int argc, char *argv[])
 	for (;;) {
 		char c;
 
-		if (poll(pfd, 2, INFTIM) == -1 && errno != EINTR)
+		if (poll(pfd, 2, -1) == -1 && errno != EINTR)
 			die("poll:");
 
 		if (pfd[0].revents & POLLIN) {
