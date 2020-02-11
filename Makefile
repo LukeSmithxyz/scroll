@@ -4,7 +4,7 @@ include config.mk
 
 all: scroll
 clean:
-	rm -f scroll
+	rm -f scroll ptty
 
 install: scroll
 	cp scroll ${BINDIR}
