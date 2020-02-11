@@ -188,10 +188,9 @@ scrollup(void)
 
 	/* print one page */
 	for (; rows > ws.ws_row - first;) {
-		if (TAILQ_PREV(bottom, tailhead, entries) != NULL)
-			bottom = TAILQ_PREV(bottom, tailhead, entries);
-		else
+		if (TAILQ_PREV(bottom, tailhead, entries) == NULL)
 			break;
+		bottom = TAILQ_PREV(bottom, tailhead, entries);
 
 		if (--rows > ws.ws_row - first)
 			write(STDOUT_FILENO, bottom->buf, bottom->size);
@@ -208,10 +207,9 @@ scrolldown(void)
 	write(STDOUT_FILENO, "\r\n", 2);
 	/* print one page */
 	for (; rows >= 0;) {
-		if (TAILQ_PREV(bottom, tailhead, entries) != NULL)
-			bottom = TAILQ_PREV(bottom, tailhead, entries);
-		else
+		if (TAILQ_PREV(bottom, tailhead, entries) == NULL)
 			break;
+		bottom = TAILQ_PREV(bottom, tailhead, entries);
 
 		if (--rows > 0)
 			write(STDOUT_FILENO, bottom->buf, bottom->size);
