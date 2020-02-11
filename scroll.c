@@ -172,6 +172,8 @@ scrollup(void)
 
 	/* set cursor position */
 	write(STDOUT_FILENO, "\033[0;0H", 6);
+	/* hide cursor */
+	write(STDOUT_FILENO, "\033[?25l", 6);
 
 	/* check if the input line is on the bottom of the screen */
 	if (TAILQ_FIRST(&head) == bottom)
