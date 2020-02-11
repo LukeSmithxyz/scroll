@@ -208,8 +208,11 @@ scrolldown(void)
 	write(STDOUT_FILENO, "\r\n", 2);
 	/* print one page */
 	for (; rows >= 0;) {
-		if ((bottom = TAILQ_PREV(bottom, tailhead, entries)) == NULL)
+		if (TAILQ_PREV(bottom, tailhead, entries) != NULL)
+			bottom = TAILQ_PREV(bottom, tailhead, entries);
+		else
 			break;
+
 		if (--rows > 0)
 			write(STDOUT_FILENO, bottom->buf, bottom->size);
 		else /* last line w/o "/r/n" */
