@@ -197,6 +197,23 @@ scrollup(void)
 	}
 }
 
+void
+scrolldown(void)
+{
+	int rows = ws.ws_row;
+
+	write(STDOUT_FILENO, "\r\n", 2);
+	/* print one page */
+	for (; rows >= 0;) {
+		if ((bottom = TAILQ_PREV(bottom, tailhead, entries)) == NULL)
+			break;
+		if (--rows > 0)
+			write(STDOUT_FILENO, bottom->buf, bottom->size);
+		else /* last line w/o "/r/n" */
+			write(STDOUT_FILENO, bottom->buf, bottom->size - 2);
+	}
+}
+
 int
 main(int argc, char *argv[])
 {
@@ -271,6 +288,8 @@ main(int argc, char *argv[])
 				die("read:");
 			if (c == 17) /* ^Q */
 				scrollup();
+			else if (c == 18) /* ^R */
+				scrolldown();
 			else if (write(mfd, &c, 1) == -1)
 				die("write:");
 		}
