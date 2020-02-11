@@ -188,8 +188,11 @@ scrollup(void)
 
 	/* print one page */
 	for (; rows > ws.ws_row - first;) {
-		if ((bottom = TAILQ_PREV(bottom, tailhead, entries)) == NULL)
+		if (TAILQ_PREV(bottom, tailhead, entries) != NULL)
+			bottom = TAILQ_PREV(bottom, tailhead, entries);
+		else
 			break;
+
 		if (--rows > ws.ws_row - first)
 			write(STDOUT_FILENO, bottom->buf, bottom->size);
 		else /* last line w/o "/r/n" */
