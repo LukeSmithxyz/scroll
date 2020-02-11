@@ -225,6 +225,11 @@ main(int argc, char *argv[])
 		_exit(127);
 	}
 
+#ifdef __OpenBSD__
+	if (pledge("stdio tty proc", NULL) == -1)
+		die("pledge:");
+#endif
+
 	if (signal(SIGCHLD, sigchld) == SIG_ERR)
 		die("signal:");
 	if (signal(SIGWINCH, sigwinch) == SIG_ERR)
