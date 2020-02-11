@@ -181,6 +181,9 @@ scrollup(void)
 	for (rows = 0; bottom != NULL && rows < 2 * ws.ws_row; rows++)
 		bottom = TAILQ_NEXT(bottom, entries);
 
+	if (bottom == NULL)
+		bottom = TAILQ_LAST(&head, tailhead);
+
 	/* print one page */
 	for (; rows > ws.ws_row - first;) {
 		if ((bottom = TAILQ_PREV(bottom, tailhead, entries)) == NULL)
