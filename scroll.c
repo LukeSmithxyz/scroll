@@ -164,16 +164,8 @@ addline(char *buf, size_t size)
 void
 scrollup(void)
 {
-	int rows;
+	int rows = 0;
 	int first = 0;
-
-	/* move the text in terminal n lines down */
-	dprintf(STDOUT_FILENO, "\033[%dS", ws.ws_row);
-
-	/* set cursor position */
-	write(STDOUT_FILENO, "\033[0;0H", 6);
-	/* hide cursor */
-	write(STDOUT_FILENO, "\033[?25l", 6);
 
 	/* check if the input line is on the bottom of the screen */
 	if (TAILQ_FIRST(&head) == bottom)
@@ -182,9 +174,20 @@ scrollup(void)
 	/* wind back bottom pointer by two pages */
 	for (rows = 0; bottom != NULL && rows < 2 * ws.ws_row; rows++)
 		bottom = TAILQ_NEXT(bottom, entries);
-
 	if (bottom == NULL)
 		bottom = TAILQ_LAST(&head, tailhead);
+
+	if (rows - ws.ws_row <= 0) {
+		bottom = TAILQ_FIRST(&head);
+		return;
+	}
+
+	/* move the text in terminal n lines down */
+	dprintf(STDOUT_FILENO, "\033[%dT", rows - ws.ws_row);
+	/* set cursor position */
+	write(STDOUT_FILENO, "\033[0;0H", 6);
+	/* hide cursor */
+	write(STDOUT_FILENO, "\033[?25l", 6);
 
 	/* print one page */
 	for (; rows > ws.ws_row - first;) {
