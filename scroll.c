@@ -185,11 +185,8 @@ scrollup(void)
 	write(STDOUT_FILENO, "\033[?25l", 6);
 
 	/* print one page */
-	for (; rows > ws.ws_row; rows--) {
-		if (TAILQ_PREV(bottom, tailhead, entries) == NULL)
-			break;
+	for (; rows > ws.ws_row && TAILQ_PREV(bottom, tailhead, entries) != NULL; rows--) {
 		bottom = TAILQ_PREV(bottom, tailhead, entries);
-
 		write(STDOUT_FILENO, bottom->buf, bottom->size);
 	}
 }
@@ -200,11 +197,8 @@ scrolldown(void)
 	int rows = ws.ws_row;
 
 	/* print one page */
-	for (; rows >= 0; rows--) {
-		if (TAILQ_PREV(bottom, tailhead, entries) == NULL)
-			break;
+	for (; rows >= 0 && TAILQ_PREV(bottom, tailhead, entries) != NULL; rows--) {
 		bottom = TAILQ_PREV(bottom, tailhead, entries);
-
 		write(STDOUT_FILENO, bottom->buf, bottom->size);
 	}
 }
