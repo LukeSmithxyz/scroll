@@ -126,6 +126,25 @@ eamalloc(size_t size)
 	return mem;
 }
 
+/* error avoiding remalloc */
+void *
+earealloc(void *ptr, size_t size)
+{
+	void *mem;
+
+	while ((mem = realloc(ptr, size)) == NULL) {
+		struct line *line = TAILQ_LAST(&head, tailhead);
+
+		if (line == NULL)
+			return NULL;
+
+		TAILQ_REMOVE(&head, line, entries);
+		free(line->buf);
+		free(line);
+	}
+
+	return mem;
+}
 
 /* Count string length w/o ansi esc sequences. */
 size_t
@@ -319,9 +338,9 @@ main(int argc, char *argv[])
 			buf[pos++] = c;
 			if (pos == size) {
 				size *= 2;
-				buf = realloc(buf, size);
+				buf = earealloc(buf, size);
 				if (buf == NULL)
-					die("realloc:");
+					die("aerealloc:");
 			}
 			if (write(STDOUT_FILENO, &c, 1) == -1)
 				die("write:");
