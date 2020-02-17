@@ -172,7 +172,7 @@ scrollup(void)
 	if (bottom == NULL)
 		bottom = TAILQ_LAST(&head, tailhead);
 
-	if (rows - ws.ws_row <= 0) {
+	if (rows - ws.ws_row < 0) {
 		bottom = TAILQ_FIRST(&head);
 		return;
 	}
@@ -197,7 +197,7 @@ scrolldown(void)
 	int rows = ws.ws_row;
 
 	/* print one page */
-	for (; rows >= 0 && TAILQ_PREV(bottom, tailhead, entries) != NULL; rows--) {
+	for (; rows > 0 && TAILQ_PREV(bottom, tailhead, entries) != NULL; rows--) {
 		bottom = TAILQ_PREV(bottom, tailhead, entries);
 		write(STDOUT_FILENO, bottom->buf, bottom->size);
 	}
