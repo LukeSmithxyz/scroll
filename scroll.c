@@ -106,6 +106,27 @@ reset(void)
 		die("tcsetattr:");
 }
 
+/* error avoiding malloc */
+void *
+eamalloc(size_t size)
+{
+	void *mem;
+
+	while ((mem = malloc(size)) == NULL) {
+		struct line *line = TAILQ_LAST(&head, tailhead);
+
+		if (line == NULL)
+			return NULL;
+
+		TAILQ_REMOVE(&head, line, entries);
+		free(line->buf);
+		free(line);
+	}
+
+	return mem;
+}
+
+
 /* Count string length w/o ansi esc sequences. */
 size_t
 strelen(const char *buf, size_t size)
@@ -144,16 +165,16 @@ strelen(const char *buf, size_t size)
 void
 addline(char *buf, size_t size)
 {
-	struct line *line = malloc(sizeof *line);
+	struct line *line = eamalloc(sizeof *line);
 
 	if (line == NULL)
-		die("malloc:");
+		die("eamalloc:");
 
 	line->size = size;
 	line->len = strelen(buf, size);
-	line->buf = malloc(size);
+	line->buf = eamalloc(size);
 	if (line->buf == NULL)
-		die("malloc:");
+		die("eamalloc:");
 	memcpy(line->buf, buf, size);
 
 	bottom = line;
