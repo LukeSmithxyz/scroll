@@ -1,9 +1,8 @@
  * strlen function which is aware of unicode
  * Alternative Screen mode detection
- * scroll down function
- * scroll/jump to buttom on new input
+ * scroll/jump to bottom on new input
  * make scroll configurable by config.h in suckless style
    - configure option for scrollup/-down hotkeys
-   - configure option for scroll lenght: nth-linewise and/or pagewise
+   - configure option for scroll length: nth-linewise and/or pagewise
    - configure option for scrollbackbuffer size
  * install target in Makefile
