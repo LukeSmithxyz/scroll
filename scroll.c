@@ -192,7 +192,7 @@ scrollup(void)
 }
 
 void
-scrolldown(void)
+scrolldown(char *buf, size_t size)
 {
 	int rows = ws.ws_row;
 
@@ -201,8 +201,10 @@ scrolldown(void)
 		bottom = TAILQ_PREV(bottom, tailhead, entries);
 		write(STDOUT_FILENO, bottom->buf, bottom->size);
 	}
-	if (bottom == TAILQ_FIRST(&head))
+	if (bottom == TAILQ_FIRST(&head)) {
 		write(STDOUT_FILENO, "\033[?25h", 6);
+		write(STDOUT_FILENO, buf, size);
+	}
 }
 
 int
@@ -280,7 +282,7 @@ main(int argc, char *argv[])
 			if (c == 17) /* ^Q */
 				scrollup();
 			else if (c == 18) /* ^R */
-				scrolldown();
+				scrolldown(buf, pos);
 			else if (write(mfd, &c, 1) == -1)
 				die("write:");
 		}
