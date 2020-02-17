@@ -201,6 +201,8 @@ scrolldown(void)
 		bottom = TAILQ_PREV(bottom, tailhead, entries);
 		write(STDOUT_FILENO, bottom->buf, bottom->size);
 	}
+	if (bottom == TAILQ_FIRST(&head))
+		write(STDOUT_FILENO, "\033[?25h", 6);
 }
 
 int
