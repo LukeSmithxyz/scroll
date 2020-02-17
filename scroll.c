@@ -190,15 +190,12 @@ scrollup(void)
 	write(STDOUT_FILENO, "\033[?25l", 6);
 
 	/* print one page */
-	for (; rows > ws.ws_row - first;) {
+	for (; rows > ws.ws_row - first;rows--) {
 		if (TAILQ_PREV(bottom, tailhead, entries) == NULL)
 			break;
 		bottom = TAILQ_PREV(bottom, tailhead, entries);
 
-		if (--rows > ws.ws_row - first)
-			write(STDOUT_FILENO, bottom->buf, bottom->size);
-		else /* last line w/o "/r/n" */
-			write(STDOUT_FILENO, bottom->buf, bottom->size - 2);
+		write(STDOUT_FILENO, bottom->buf, bottom->size);
 	}
 }
 
@@ -209,15 +206,12 @@ scrolldown(void)
 
 	write(STDOUT_FILENO, "\r\n", 2);
 	/* print one page */
-	for (; rows >= 0;) {
+	for (; rows >= 0;rows--) {
 		if (TAILQ_PREV(bottom, tailhead, entries) == NULL)
 			break;
 		bottom = TAILQ_PREV(bottom, tailhead, entries);
 
-		if (--rows > 0)
-			write(STDOUT_FILENO, bottom->buf, bottom->size);
-		else /* last line w/o "/r/n" */
-			write(STDOUT_FILENO, bottom->buf, bottom->size - 2);
+		write(STDOUT_FILENO, bottom->buf, bottom->size);
 	}
 }
 
@@ -304,17 +298,17 @@ main(int argc, char *argv[])
 			ssize_t n = read(mfd, &c, 1);
 			if (n == -1 && errno != EINTR)
 				die("read:");
+			if (c == '\r') {
+				addline(buf, pos);
+				memset(buf, 0, size);
+				pos = 0;
+			}
 			buf[pos++] = c;
 			if (pos == size) {
 				size *= 2;
 				buf = realloc(buf, size);
 				if (buf == NULL)
 					die("realloc:");
-			}
-			if (c == '\n') {
-				addline(buf, pos);
-				memset(buf, 0, size);
-				pos = 0;
 			}
 			if (write(STDOUT_FILENO, &c, 1) == -1)
 				die("write:");
