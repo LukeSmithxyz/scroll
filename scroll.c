@@ -165,11 +165,6 @@ void
 scrollup(void)
 {
 	int rows = 0;
-	int first = 0;
-
-	/* check if the input line is on the bottom of the screen */
-	if (TAILQ_FIRST(&head) == bottom)
-		first = 1;
 
 	/* wind back bottom pointer by two pages */
 	for (rows = 0; bottom != NULL && rows < 2 * ws.ws_row; rows++)
@@ -190,7 +185,7 @@ scrollup(void)
 	write(STDOUT_FILENO, "\033[?25l", 6);
 
 	/* print one page */
-	for (; rows > ws.ws_row - first;rows--) {
+	for (; rows > ws.ws_row; rows--) {
 		if (TAILQ_PREV(bottom, tailhead, entries) == NULL)
 			break;
 		bottom = TAILQ_PREV(bottom, tailhead, entries);
@@ -204,9 +199,8 @@ scrolldown(void)
 {
 	int rows = ws.ws_row;
 
-	write(STDOUT_FILENO, "\r\n", 2);
 	/* print one page */
-	for (; rows >= 0;rows--) {
+	for (; rows >= 0; rows--) {
 		if (TAILQ_PREV(bottom, tailhead, entries) == NULL)
 			break;
 		bottom = TAILQ_PREV(bottom, tailhead, entries);
