@@ -116,7 +116,7 @@ eamalloc(size_t size)
 		struct line *line = TAILQ_LAST(&head, tailhead);
 
 		if (line == NULL)
-			return NULL;
+			die("malloc:");
 
 		TAILQ_REMOVE(&head, line, entries);
 		free(line->buf);
@@ -136,7 +136,7 @@ earealloc(void *ptr, size_t size)
 		struct line *line = TAILQ_LAST(&head, tailhead);
 
 		if (line == NULL)
-			return NULL;
+			die("realloc:");
 
 		TAILQ_REMOVE(&head, line, entries);
 		free(line->buf);
@@ -186,14 +186,9 @@ addline(char *buf, size_t size)
 {
 	struct line *line = eamalloc(sizeof *line);
 
-	if (line == NULL)
-		die("eamalloc:");
-
 	line->size = size;
 	line->len = strelen(buf, size);
 	line->buf = eamalloc(size);
-	if (line->buf == NULL)
-		die("eamalloc:");
 	memcpy(line->buf, buf, size);
 
 	bottom = line;
@@ -337,8 +332,6 @@ main(int argc, char *argv[])
 			if (pos == size) {
 				size *= 2;
 				buf = earealloc(buf, size);
-				if (buf == NULL)
-					die("aerealloc:");
 			}
 			if (write(STDOUT_FILENO, &c, 1) == -1)
 				die("write:");
