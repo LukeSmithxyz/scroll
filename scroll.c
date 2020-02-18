@@ -207,12 +207,10 @@ scrollup(void)
 	int rows = 0;
 
 	/* wind back bottom pointer by two pages */
-	for (rows = 0; bottom != NULL && rows < 2 * ws.ws_row; rows++)
+	for (; TAILQ_NEXT(bottom, entries) != NULL && rows < 2 * ws.ws_row; rows++)
 		bottom = TAILQ_NEXT(bottom, entries);
-	if (bottom == NULL)
-		bottom = TAILQ_LAST(&head, tailhead);
 
-	if (rows - ws.ws_row < 0) {
+	if (rows < ws.ws_row) {
 		bottom = TAILQ_FIRST(&head);
 		return;
 	}
