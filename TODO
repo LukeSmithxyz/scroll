@@ -5,4 +5,3 @@
    - configure option for scrollup/-down hotkeys
    - configure option for scroll length: nth-linewise and/or pagewise
    - configure option for scrollbackbuffer size
- * install target in Makefile
