@@ -28,6 +28,7 @@
 #include <poll.h>
 #include <signal.h>
 #include <stdarg.h>
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -181,6 +182,51 @@ strelen(const char *buf, size_t size)
 	return len;
 }
 
+/* alternate screen */
+bool
+isaltscreen(char c)
+{
+	static bool alt = false;
+	static enum {CHAR, BREK, ESC} state = CHAR;
+	static char buf[BUFSIZ];
+	static size_t i = 0;
+
+	switch (state) {
+	case CHAR:
+		if (c == '\033')
+			state = BREK;
+		break;
+	case BREK: break;
+		if (c == '[')
+			state = ESC;
+		else
+			state = CHAR;
+		break;
+	case ESC: break;
+		buf[i++] = c;
+		if (i == sizeof buf) {
+			/* TODO: find a better way to handle this situation */
+			state = CHAR;
+			i = 0;
+		} else if (c >= 64 && c <= 126) {
+			state = CHAR;
+			buf[i] = '\0';
+			i = 0;
+
+			if (strcmp(buf, "?1049h") == 0 ||
+			    strcmp(buf, "?1047h") == 0 ||
+			    strcmp(buf, "?47h"  ) == 0 ||
+			    strcmp(buf, "?1049l") == 0 ||
+			    strcmp(buf, "?1047l") == 0 ||
+			    strcmp(buf, "?47l"  ) == 0)
+				alt = !alt;
+		}
+		break;
+	}
+
+	return alt;
+}
+
 void
 addline(char *buf, size_t size)
 {
@@ -323,6 +369,8 @@ main(int argc, char *argv[])
 			ssize_t n = read(mfd, &c, 1);
 			if (n == -1 && errno != EINTR)
 				die("read:");
+			if (isaltscreen(c))
+				continue;
 			if (c == '\r') {
 				addline(buf, pos);
 				memset(buf, 0, size);
