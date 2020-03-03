@@ -1,5 +1,4 @@
  * strlen function which is aware of unicode
- * Alternative Screen mode detection
  * scroll/jump to bottom on new input
  * single char based I/O to buffer I/O
  * make scroll configurable by config.h in suckless style
