@@ -252,7 +252,7 @@ scrollup(void)
 		bottom = TAILQ_NEXT(bottom, entries);
 
 	if (rows < ws.ws_row) {
-		bottom = TAILQ_FIRST(&head);
+		bottom = TAILQ_LAST(&head, tailhead);
 		return;
 	}
 
