@@ -251,7 +251,7 @@ scrollup(void)
 	for (; TAILQ_NEXT(bottom, entries) != NULL && rows < 2 * ws.ws_row; rows++)
 		bottom = TAILQ_NEXT(bottom, entries);
 
-	if (rows < ws.ws_row) {
+	if (rows <= ws.ws_row) {
 		bottom = TAILQ_LAST(&head, tailhead);
 		return;
 	}
@@ -264,7 +264,7 @@ scrollup(void)
 	write(STDOUT_FILENO, "\033[?25l", 6);
 
 	/* print one page */
-	for (; rows > ws.ws_row && TAILQ_PREV(bottom, tailhead, entries) != NULL; rows--) {
+	for (rows = 0; rows < ws.ws_row; rows++) {
 		bottom = TAILQ_PREV(bottom, tailhead, entries);
 		write(STDOUT_FILENO, bottom->buf, bottom->size);
 	}
