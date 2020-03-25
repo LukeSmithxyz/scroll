@@ -364,7 +364,7 @@ main(int argc, char *argv[])
 				scrolldown(buf, pos);
 			else if (write(mfd, &c, 1) == -1)
 				die("write:");
-			else {
+			else if (bottom != TAILQ_FIRST(&head)) {
 				bottom = TAILQ_FIRST(&head);
 				scrolldown(buf, pos);
 			}
