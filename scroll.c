@@ -196,13 +196,13 @@ isaltscreen(char c)
 		if (c == '\033')
 			state = BREK;
 		break;
-	case BREK: break;
+	case BREK:
 		if (c == '[')
 			state = ESC;
 		else
 			state = CHAR;
 		break;
-	case ESC: break;
+	case ESC:
 		buf[i++] = c;
 		if (i == sizeof buf) {
 			/* TODO: find a better way to handle this situation */
@@ -373,17 +373,17 @@ main(int argc, char *argv[])
 			ssize_t n = read(mfd, &c, 1);
 			if (n == -1 && errno != EINTR)
 				die("read:");
-			if (isaltscreen(c))
-				continue;
-			if (c == '\r') {
-				addline(buf, pos);
-				memset(buf, 0, size);
-				pos = 0;
-			}
-			buf[pos++] = c;
-			if (pos == size) {
-				size *= 2;
-				buf = earealloc(buf, size);
+			if (!isaltscreen(c)) {
+				if (c == '\r') {
+					addline(buf, pos);
+					memset(buf, 0, size);
+					pos = 0;
+				}
+				buf[pos++] = c;
+				if (pos == size) {
+					size *= 2;
+					buf = earealloc(buf, size);
+				}
 			}
 			if (write(STDOUT_FILENO, &c, 1) == -1)
 				die("write:");
