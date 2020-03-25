@@ -364,6 +364,10 @@ main(int argc, char *argv[])
 				scrolldown(buf, pos);
 			else if (write(mfd, &c, 1) == -1)
 				die("write:");
+			else {
+				bottom = TAILQ_FIRST(&head);
+				scrolldown(buf, pos);
+			}
 		}
 		if (pfd[1].revents & POLLIN) {
 			ssize_t n = read(mfd, &c, 1);
