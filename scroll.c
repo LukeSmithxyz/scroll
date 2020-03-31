@@ -276,7 +276,7 @@ scrolldown(char *buf, size_t size)
 	int rows = ws.ws_row;
 
 	/* print one page */
-	for (; rows > 0 && TAILQ_PREV(bottom, tailhead, entries) != NULL; rows--) {
+	for (; rows > 0 && bottom != NULL && TAILQ_PREV(bottom, tailhead, entries) != NULL; rows--) {
 		bottom = TAILQ_PREV(bottom, tailhead, entries);
 		write(STDOUT_FILENO, bottom->buf, bottom->size);
 	}
