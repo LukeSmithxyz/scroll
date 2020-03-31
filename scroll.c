@@ -296,6 +296,18 @@ scrolldown(char *buf, size_t size)
 	}
 }
 
+void
+jumpdown(char *buf, size_t size)
+{
+	int rows = ws.ws_row;
+
+	bottom = TAILQ_FIRST(&head);
+	for (; TAILQ_NEXT(bottom, entries) != NULL && rows > 0; rows--)
+		bottom = TAILQ_NEXT(bottom, entries);
+
+	scrolldown(buf, size);
+}
+
 int
 main(int argc, char *argv[])
 {
@@ -375,8 +387,7 @@ main(int argc, char *argv[])
 			else if (write(mfd, &c, 1) == -1)
 				die("write:");
 			else if (bottom != TAILQ_FIRST(&head)) {
-				bottom = TAILQ_FIRST(&head);
-				scrolldown(buf, pos);
+				jumpdown(buf, pos);
 			}
 		}
 		if (pfd[1].revents & POLLIN) {
