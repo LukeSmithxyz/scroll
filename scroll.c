@@ -215,11 +215,13 @@ isaltscreen(char c)
 
 			if (strcmp(buf, "?1049h") == 0 ||
 			    strcmp(buf, "?1047h") == 0 ||
-			    strcmp(buf, "?47h"  ) == 0 ||
-			    strcmp(buf, "?1049l") == 0 ||
+			    strcmp(buf, "?47h"  ) == 0)
+				alt = true;
+
+			if (strcmp(buf, "?1049l") == 0 ||
 			    strcmp(buf, "?1047l") == 0 ||
 			    strcmp(buf, "?47l"  ) == 0)
-				alt = !alt;
+				alt = false;
 		}
 		break;
 	}
