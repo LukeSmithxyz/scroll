@@ -322,11 +322,13 @@ main(int argc, char *argv[])
 	if (argc <= 1)
 		die("usage: scroll <program>");
 
+	/* save terminal settings for resetting after exit */
 	if (tcgetattr(STDIN_FILENO, &dfl) == -1)
 		die("tcgetattr:");
 	if (atexit(reset))
 		die("atexit:");
 
+	/* get window size of the terminal */
 	if (ioctl(STDOUT_FILENO, TIOCGWINSZ, &ws) < 0)
 		die("ioctl:");
 
@@ -404,6 +406,7 @@ main(int argc, char *argv[])
 
 			/* iterate over the input buffer */
 			for (char *c = input; n-- > 0; c++) {
+				/* don't save lines from alternative screen */
 				if (!isaltscreen(*c)) {
 					if (*c == '\r') {
 						addline(buf, pos);
