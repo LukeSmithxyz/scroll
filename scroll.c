@@ -254,7 +254,9 @@ scrollup(void)
 		start = 1;
 
 	/* wind back bottom pointer by two pages */
-	for (; bottom != NULL && TAILQ_NEXT(bottom, entries) != NULL && rows < 2 * ws.ws_row; rows++)
+	for (; bottom != NULL &&
+	       TAILQ_NEXT(bottom, entries) != NULL &&
+	       rows < 2 * ws.ws_row; rows++)
 		bottom = TAILQ_NEXT(bottom, entries);
 
 	if (rows <= ws.ws_row) {
@@ -282,7 +284,9 @@ scrolldown(char *buf, size_t size)
 	int rows = ws.ws_row;
 
 	/* print one page */
-	for (; rows > 0 && bottom != NULL && TAILQ_PREV(bottom, tailhead, entries) != NULL; rows--) {
+	for (; rows > 0 &&
+	       bottom != NULL &&
+	       TAILQ_PREV(bottom, tailhead, entries) != NULL; rows--) {
 		bottom = TAILQ_PREV(bottom, tailhead, entries);
 		write(STDOUT_FILENO, bottom->buf, bottom->size);
 	}
