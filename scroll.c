@@ -245,7 +245,11 @@ addline(char *buf, size_t size)
 void
 scrollup(void)
 {
-	int rows = 0;
+	int rows = 0, start = 0;
+
+	/* account for last line */
+	if(TAILQ_PREV(bottom, tailhead, entries) == NULL)
+		start = 1;
 
 	/* wind back bottom pointer by two pages */
 	for (; bottom != NULL && TAILQ_NEXT(bottom, entries) != NULL && rows < 2 * ws.ws_row; rows++)
@@ -264,7 +268,7 @@ scrollup(void)
 	write(STDOUT_FILENO, "\033[?25l", 6);
 
 	/* print one page */
-	for (rows = 0; rows < ws.ws_row; rows++) {
+	for (rows = 0; rows < ws.ws_row + start; rows++) {
 		bottom = TAILQ_PREV(bottom, tailhead, entries);
 		write(STDOUT_FILENO, bottom->buf, bottom->size);
 	}
