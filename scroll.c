@@ -248,6 +248,7 @@ void
 scrollup(void)
 {
 	int rows = 0, start = 0;
+	struct line *bottom_old = bottom;
 
 	/* account for last line */
 	if(bottom != NULL && TAILQ_PREV(bottom, tailhead, entries) == NULL)
@@ -260,7 +261,7 @@ scrollup(void)
 		bottom = TAILQ_NEXT(bottom, entries);
 
 	if (rows <= ws.ws_row) {
-		bottom = TAILQ_LAST(&head, tailhead);
+		bottom = bottom_old;
 		return;
 	}
 
