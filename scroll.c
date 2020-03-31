@@ -372,26 +372,30 @@ main(int argc, char *argv[])
 	};
 
 	for (;;) {
+		char input[BUFSIZ];
+
 		if (poll(pfd, 2, -1) == -1 && errno != EINTR)
 			die("poll:");
 
 		if (pfd[0].revents & POLLIN) {
-			char c;
+			ssize_t n = read(STDIN_FILENO, input, sizeof input);
 
-			if (read(STDIN_FILENO, &c, 1) <= 0 && errno != EINTR)
+			if (n <= 0 && errno != EINTR)
 				die("read:");
-			if (c == 17) /* ^Q */
-				scrollup();
-			else if (c == 18) /* ^R */
-				scrolldown(buf, pos);
-			else if (write(mfd, &c, 1) == -1)
-				die("write:");
-			else if (bottom != TAILQ_FIRST(&head)) {
-				jumpdown(buf, pos);
+
+			/* iterate over the input buffer */
+			for (char *c = input; n-- > 0; c++) {
+				if (*c == 17) /* ^Q */
+					scrollup();
+				else if (*c == 18) /* ^R */
+					scrolldown(buf, pos);
+				else if (write(mfd, c, 1) == -1)
+					die("write:");
+				else if (bottom != TAILQ_FIRST(&head))
+					jumpdown(buf, pos);
 			}
 		}
 		if (pfd[1].revents & POLLIN) {
-			char input[BUFSIZ];
 			ssize_t n = read(mfd, input, sizeof input);
 
 			if (n == -1 && errno != EINTR)
