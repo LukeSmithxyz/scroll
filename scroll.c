@@ -372,12 +372,12 @@ main(int argc, char *argv[])
 	};
 
 	for (;;) {
-		char c;
-
 		if (poll(pfd, 2, -1) == -1 && errno != EINTR)
 			die("poll:");
 
 		if (pfd[0].revents & POLLIN) {
+			char c;
+
 			if (read(STDIN_FILENO, &c, 1) <= 0 && errno != EINTR)
 				die("read:");
 			if (c == 17) /* ^Q */
@@ -391,23 +391,30 @@ main(int argc, char *argv[])
 			}
 		}
 		if (pfd[1].revents & POLLIN) {
-			ssize_t n = read(mfd, &c, 1);
+			char input[BUFSIZ];
+			ssize_t n = read(mfd, input, sizeof input);
+
 			if (n == -1 && errno != EINTR)
 				die("read:");
-			if (!isaltscreen(c)) {
-				if (c == '\r') {
-					addline(buf, pos);
-					memset(buf, 0, size);
-					pos = 0;
+
+			/* iterate over the input buffer */
+			for (char *c = input; n-- > 0; c++) {
+				if (!isaltscreen(*c)) {
+					if (*c == '\r') {
+						addline(buf, pos);
+						memset(buf, 0, size);
+						pos = 0;
+					}
+					buf[pos++] = *c;
+					if (pos == size) {
+						size *= 2;
+						buf = earealloc(buf, size);
+					}
 				}
-				buf[pos++] = c;
-				if (pos == size) {
-					size *= 2;
-					buf = earealloc(buf, size);
-				}
+
+				if (write(STDOUT_FILENO, c, 1) == -1)
+					die("write:");
 			}
-			if (write(STDOUT_FILENO, &c, 1) == -1)
-				die("write:");
 		}
 	}
 
