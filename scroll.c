@@ -252,7 +252,7 @@ scrollup(void)
 
 	/* account for last line */
 	if(bottom != NULL && TAILQ_PREV(bottom, tailhead, entries) == NULL)
-		start = 1;
+		start = 2;
 
 	/* wind back bottom pointer by two pages */
 	for (; bottom != NULL &&
@@ -274,8 +274,8 @@ scrollup(void)
 
 	/* print one page */
 	for (rows = 0; rows < ws.ws_row + start; rows++) {
-		bottom = TAILQ_PREV(bottom, tailhead, entries);
 		write(STDOUT_FILENO, bottom->buf, bottom->size);
+		bottom = TAILQ_PREV(bottom, tailhead, entries);
 	}
 }
 
