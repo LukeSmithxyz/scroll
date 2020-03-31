@@ -250,7 +250,7 @@ scrollup(void)
 	int rows = 0, start = 0;
 
 	/* account for last line */
-	if(TAILQ_PREV(bottom, tailhead, entries) == NULL)
+	if(bottom != NULL && TAILQ_PREV(bottom, tailhead, entries) == NULL)
 		start = 1;
 
 	/* wind back bottom pointer by two pages */
