@@ -182,7 +182,7 @@ strelen(const char *buf, size_t size)
 	return len;
 }
 
-/* alternate screen */
+/* detect alternative screen switching */
 bool
 isaltscreen(char c)
 {
@@ -213,11 +213,13 @@ isaltscreen(char c)
 			buf[i] = '\0';
 			i = 0;
 
+			/* esc seq. enable alternative screen */
 			if (strcmp(buf, "?1049h") == 0 ||
 			    strcmp(buf, "?1047h") == 0 ||
 			    strcmp(buf, "?47h"  ) == 0)
 				alt = true;
 
+			/* esc seq. disable alternative screen */
 			if (strcmp(buf, "?1049l") == 0 ||
 			    strcmp(buf, "?1047l") == 0 ||
 			    strcmp(buf, "?47l"  ) == 0)
@@ -292,7 +294,7 @@ scrolldown(char *buf, size_t size)
 		write(STDOUT_FILENO, bottom->buf, bottom->size);
 	}
 	if (rows < ws.ws_row && bottom == TAILQ_FIRST(&head)) {
-		write(STDOUT_FILENO, "\033[?25h", 6);
+		write(STDOUT_FILENO, "\033[?25h", 6);	/* show cursor */
 		write(STDOUT_FILENO, buf, size);
 	}
 }
