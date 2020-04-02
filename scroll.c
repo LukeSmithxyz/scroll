@@ -251,36 +251,37 @@ addline(char *buf, size_t size)
 void
 scrollup(void)
 {
-	int rows = 0, start = 0;
+	int rows = - ws.ws_row + 1;
 	struct line *bottom_old = bottom;
 
 	/* account for last line */
 	if(bottom != NULL && TAILQ_PREV(bottom, tailhead, entries) == NULL)
-		start = 2;
+		rows++;
 
 	/* wind back bottom pointer by two pages */
 	for (; bottom != NULL &&
 	       TAILQ_NEXT(bottom, entries) != NULL &&
-	       rows < 2 * ws.ws_row; rows++)
+	       rows <= ws.ws_row; rows++)
 		bottom = TAILQ_NEXT(bottom, entries);
 
-	if (rows <= ws.ws_row) {
+	if (rows <= 0) {
 		bottom = bottom_old;
 		return;
 	}
 
 	/* move the text in terminal n lines down */
-	dprintf(STDOUT_FILENO, "\033[%dT", rows - ws.ws_row);
+	dprintf(STDOUT_FILENO, "\033[%dT", rows);
 	/* set cursor position */
 	write(STDOUT_FILENO, "\033[0;0H", 6);
 	/* hide cursor */
 	write(STDOUT_FILENO, "\033[?25l", 6);
 
 	/* print one page */
-	for (rows = 0; rows < ws.ws_row + start; rows++) {
+	for (; rows > 0; rows--) {
 		write(STDOUT_FILENO, bottom->buf, bottom->size);
 		bottom = TAILQ_PREV(bottom, tailhead, entries);
 	}
+	bottom = TAILQ_NEXT(bottom, entries);
 }
 
 void
