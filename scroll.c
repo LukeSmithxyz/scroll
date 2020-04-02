@@ -270,7 +270,7 @@ scrollup(void)
 
 	/* move the text in terminal n lines down */
 	dprintf(STDOUT_FILENO, "\033[%dT", rows);
-	/* set cursor position */
+	/* set cursor position to upper left corner */
 	write(STDOUT_FILENO, "\033[0;0H", 6);
 	/* hide cursor */
 	write(STDOUT_FILENO, "\033[?25l", 6);
