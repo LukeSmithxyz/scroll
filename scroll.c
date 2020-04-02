@@ -390,9 +390,11 @@ main(int argc, char *argv[])
 			if (n <= 0 && errno != EINTR)
 				die("read:");
 
-			if (strncmp(SCROLL_UP, input, n) == 0)
+			if (strncmp(KB_SCROLL_UP, input, n) == 0 ||
+			    strncmp(MS_SCROLL_UP, input, n) == 0)
 				scrollup();
-			else if (strncmp(SCROLL_DOWN, input, n) == 0)
+			else if (strncmp(KB_SCROLL_DOWN, input, n) == 0 ||
+			    strncmp(MS_SCROLL_DOWN, input, n) == 0)
 				scrolldown(buf, pos);
 			else if (write(mfd, input, n) == -1)
 				die("write:");
