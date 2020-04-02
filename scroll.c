@@ -388,17 +388,14 @@ main(int argc, char *argv[])
 			if (n <= 0 && errno != EINTR)
 				die("read:");
 
-			/* iterate over the input buffer */
-			for (char *c = input; n-- > 0; c++) {
-				if (*c == 17) /* ^Q */
-					scrollup();
-				else if (*c == 18) /* ^R */
-					scrolldown(buf, pos);
-				else if (write(mfd, c, 1) == -1)
-					die("write:");
-				else if (bottom != TAILQ_FIRST(&head))
-					jumpdown(buf, pos);
-			}
+			if (strncmp("\033[5;2~", input, n) == 0)
+				scrollup();
+			else if (strncmp("\033[6;2~", input, n) == 0)
+				scrolldown(buf, pos);
+			else if (write(mfd, input, n) == -1)
+				die("write:");
+			else if (bottom != TAILQ_FIRST(&head))
+				jumpdown(buf, pos);
 		}
 		if (pfd[1].revents & POLLIN) {
 			ssize_t n = read(mfd, input, sizeof input);
