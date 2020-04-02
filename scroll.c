@@ -43,6 +43,8 @@
  #include <libutil.h>
 #endif
 
+#include "config.h"
+
 TAILQ_HEAD(tailhead, line) head;
 
 struct line {
@@ -388,9 +390,9 @@ main(int argc, char *argv[])
 			if (n <= 0 && errno != EINTR)
 				die("read:");
 
-			if (strncmp("\033[5;2~", input, n) == 0)
+			if (strncmp(SCROLL_UP, input, n) == 0)
 				scrollup();
-			else if (strncmp("\033[6;2~", input, n) == 0)
+			else if (strncmp(SCROLL_DOWN, input, n) == 0)
 				scrolldown(buf, pos);
 			else if (write(mfd, input, n) == -1)
 				die("write:");

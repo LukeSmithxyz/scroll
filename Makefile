@@ -6,6 +6,11 @@ all: scroll
 clean:
 	rm -f scroll ptty
 
+config.h:
+	cp config.def.h config.h
+
+scroll: scroll.c config.h
+
 install: scroll
 	cp scroll ${BINDIR}
 	cp scroll.1 ${MAN1DIR}
