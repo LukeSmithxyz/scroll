@@ -58,6 +58,7 @@ pid_t child;
 int mfd;
 struct termios dfl;
 struct winsize ws;
+static bool altscreen = false;	/* is alternative screen active */
 
 void
 die(const char *fmt, ...)
@@ -188,7 +189,6 @@ strelen(const char *buf, size_t size)
 bool
 isaltscreen(char c)
 {
-	static bool alt = false;
 	static enum {CHAR, BREK, ESC} state = CHAR;
 	static char buf[BUFSIZ];
 	static size_t i = 0;
@@ -219,18 +219,18 @@ isaltscreen(char c)
 			if (strcmp(buf, "?1049h") == 0 ||
 			    strcmp(buf, "?1047h") == 0 ||
 			    strcmp(buf, "?47h"  ) == 0)
-				alt = true;
+				altscreen = true;
 
 			/* esc seq. disable alternative screen */
 			if (strcmp(buf, "?1049l") == 0 ||
 			    strcmp(buf, "?1047l") == 0 ||
 			    strcmp(buf, "?47l"  ) == 0)
-				alt = false;
+				altscreen = false;
 		}
 		break;
 	}
 
-	return alt;
+	return altscreen;
 }
 
 void
@@ -389,11 +389,13 @@ main(int argc, char *argv[])
 			if (n <= 0 && errno != EINTR)
 				die("read:");
 
-			if (strncmp(KB_SCROLL_UP, input, n) == 0 ||
-			    strncmp(MS_SCROLL_UP, input, n) == 0)
+			if (!altscreen &&
+			    (strncmp(KB_SCROLL_UP, input, n) == 0 ||
+			    strncmp(MS_SCROLL_UP, input, n) == 0))
 				scrollup();
-			else if (strncmp(KB_SCROLL_DOWN, input, n) == 0 ||
-			    strncmp(MS_SCROLL_DOWN, input, n) == 0)
+			else if (!altscreen &&
+			    (strncmp(KB_SCROLL_DOWN, input, n) == 0 ||
+			    strncmp(MS_SCROLL_DOWN, input, n) == 0))
 				scrolldown(buf, pos);
 			else if (write(mfd, input, n) == -1)
 				die("write:");
