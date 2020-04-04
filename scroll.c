@@ -385,18 +385,19 @@ main(int argc, char *argv[])
 			die("poll:");
 
 		if (pfd[0].revents & POLLIN) {
-			ssize_t n = read(STDIN_FILENO, input, sizeof input);
+			ssize_t n = read(STDIN_FILENO, input, sizeof(input)-1);
 
 			if (n <= 0 && errno != EINTR)
 				die("read:");
 
-			if (!altscreen && strncmp(KB_SCROLL_UP, input, n) == 0)
+			input[n] = '\0';
+			if (!altscreen && strcmp(KB_SCROLL_UP, input) == 0)
 				scrollup(ws.ws_row);
-			else if (!altscreen && strncmp(MS_SCROLL_UP, input, n) == 0)
+			else if (!altscreen && strcmp(MS_SCROLL_UP, input) == 0)
 				scrollup(1);
-			else if (!altscreen && strncmp(KB_SCROLL_DOWN, input, n) == 0)
+			else if (!altscreen && strcmp(KB_SCROLL_DOWN, input) == 0)
 				scrolldown(buf, pos, ws.ws_row);
-			else if (!altscreen && strncmp(MS_SCROLL_DOWN, input, n) == 0)
+			else if (!altscreen && strcmp(MS_SCROLL_DOWN, input) == 0)
 				scrolldown(buf, pos, 1);
 			else if (write(mfd, input, n) == -1)
 				die("write:");
