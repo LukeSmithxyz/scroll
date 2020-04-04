@@ -410,6 +410,13 @@ main(int argc, char *argv[])
 			if (n == -1 && errno != EINTR)
 				die("read:");
 
+			/* don't save clear screen esc sequences in log */
+			if (strncmp("\033[H\033[2J", input, n) == 0) {
+				if (write(STDOUT_FILENO, input, n) == -1)
+					die("write:");
+				continue;
+			}
+
 			/* iterate over the input buffer */
 			for (char *c = input; n-- > 0; c++) {
 				/* don't save lines from alternative screen */
