@@ -286,20 +286,19 @@ scrollup(int n)
 }
 
 void
-scrolldown(char *buf, size_t size)
+scrolldown(char *buf, size_t size, int n)
 {
-	int rows = ws.ws_row;
-
-	/* print one page */
-	for (; rows > 0 && bottom != NULL &&
-	    TAILQ_PREV(bottom, tailhead, entries) != NULL; rows--) {
+	bottom = TAILQ_PREV(bottom, tailhead, entries);
+	/* print n lines */
+	for (; n > 0 && bottom != NULL && bottom != TAILQ_FIRST(&head); n--) {
 		bottom = TAILQ_PREV(bottom, tailhead, entries);
 		write(STDOUT_FILENO, bottom->buf, bottom->size);
 	}
-	if (rows < ws.ws_row && bottom == TAILQ_FIRST(&head)) {
+	if (bottom == TAILQ_FIRST(&head)) {
 		write(STDOUT_FILENO, "\033[?25h", 6);	/* show cursor */
 		write(STDOUT_FILENO, buf, size);
-	}
+	} else
+		bottom = TAILQ_NEXT(bottom, entries);
 }
 
 void
@@ -311,7 +310,7 @@ jumpdown(char *buf, size_t size)
 	for (; TAILQ_NEXT(bottom, entries) != NULL && rows > 0; rows--)
 		bottom = TAILQ_NEXT(bottom, entries);
 
-	scrolldown(buf, size);
+	scrolldown(buf, size, ws.ws_row);
 }
 
 int
@@ -395,10 +394,10 @@ main(int argc, char *argv[])
 				scrollup(ws.ws_row);
 			else if (!altscreen && strncmp(MS_SCROLL_UP, input, n) == 0)
 				scrollup(1);
-			else if (!altscreen &&
-			    (strncmp(KB_SCROLL_DOWN, input, n) == 0 ||
-			    strncmp(MS_SCROLL_DOWN, input, n) == 0))
-				scrolldown(buf, pos);
+			else if (!altscreen && strncmp(KB_SCROLL_DOWN, input, n) == 0)
+				scrolldown(buf, pos, ws.ws_row);
+			else if (!altscreen && strncmp(MS_SCROLL_DOWN, input, n) == 0)
+				scrolldown(buf, pos, 1);
 			else if (write(mfd, input, n) == -1)
 				die("write:");
 			else if (bottom != TAILQ_FIRST(&head))
