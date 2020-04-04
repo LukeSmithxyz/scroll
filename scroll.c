@@ -249,38 +249,40 @@ addline(char *buf, size_t size)
 }
 
 void
-scrollup(void)
+scrollup(int n)
 {
-	int rows = - ws.ws_row + 1;
-	struct line *bottom_old = bottom;
+	int rows = 2;
+	struct line *scrollend = bottom;
 
-	/* account for last line */
-	if (bottom != NULL && TAILQ_PREV(bottom, tailhead, entries) == NULL)
-		rows++;
+	/* wind back scrollend pointer by one page plus n */
+	for (; scrollend != NULL && TAILQ_NEXT(scrollend, entries) != NULL &&
+	    rows < ws.ws_row + n; rows++)
+		scrollend = TAILQ_NEXT(scrollend, entries);
 
-	/* wind back bottom pointer by two pages */
-	for (; bottom != NULL && TAILQ_NEXT(bottom, entries) != NULL &&
-	    rows <= ws.ws_row; rows++)
-		bottom = TAILQ_NEXT(bottom, entries);
+	rows -= ws.ws_row;
 
 	if (rows <= 0) {
-		bottom = bottom_old;
 		return;
 	}
 
-	/* move the text in terminal n lines down */
+	/* move the text in terminal rows lines down */
 	dprintf(STDOUT_FILENO, "\033[%dT", rows);
 	/* set cursor position to upper left corner */
 	write(STDOUT_FILENO, "\033[0;0H", 6);
 	/* hide cursor */
 	write(STDOUT_FILENO, "\033[?25l", 6);
 
-	/* print one page */
-	for (; rows > 0; rows--) {
-		write(STDOUT_FILENO, bottom->buf, bottom->size);
-		bottom = TAILQ_PREV(bottom, tailhead, entries);
-	}
+	/* remove newline of first line as we are at 0,0 already */
+	if (scrollend->size > 2)
+		write(STDOUT_FILENO, scrollend->buf + 2, scrollend->size - 2);
 	bottom = TAILQ_NEXT(bottom, entries);
+
+	/* print rows lines and move bottom forward to the new screen bottom */
+	for (; rows > 1; rows--) {
+		scrollend = TAILQ_PREV(scrollend, tailhead, entries);
+		bottom = TAILQ_NEXT(bottom, entries);
+		write(STDOUT_FILENO, scrollend->buf, scrollend->size);
+	}
 }
 
 void
@@ -389,10 +391,10 @@ main(int argc, char *argv[])
 			if (n <= 0 && errno != EINTR)
 				die("read:");
 
-			if (!altscreen &&
-			    (strncmp(KB_SCROLL_UP, input, n) == 0 ||
-			    strncmp(MS_SCROLL_UP, input, n) == 0))
-				scrollup();
+			if (!altscreen && strncmp(KB_SCROLL_UP, input, n) == 0)
+				scrollup(ws.ws_row);
+			else if (!altscreen && strncmp(MS_SCROLL_UP, input, n) == 0)
+				scrollup(1);
 			else if (!altscreen &&
 			    (strncmp(KB_SCROLL_DOWN, input, n) == 0 ||
 			    strncmp(MS_SCROLL_DOWN, input, n) == 0))
