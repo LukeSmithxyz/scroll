@@ -410,31 +410,29 @@ main(int argc, char *argv[])
 			if (n == -1 && errno != EINTR)
 				die("read:");
 
+			if (write(STDOUT_FILENO, input, n) == -1)
+				die("write:");
+
 			/* don't save clear screen esc sequences in log */
-			if (strncmp("\033[H\033[2J", input, n) == 0) {
-				if (write(STDOUT_FILENO, input, n) == -1)
-					die("write:");
+			if (strncmp("\033[H\033[2J", input, n) == 0)
 				continue;
-			}
 
 			/* iterate over the input buffer */
 			for (char *c = input; n-- > 0; c++) {
 				/* don't save lines from alternative screen */
-				if (!isaltscreen(*c)) {
-					if (*c == '\r') {
-						addline(buf, pos);
-						memset(buf, 0, size);
-						pos = 0;
-					}
-					buf[pos++] = *c;
-					if (pos == size) {
-						size *= 2;
-						buf = earealloc(buf, size);
-					}
-				}
+				if (isaltscreen(*c))
+					continue;
 
-				if (write(STDOUT_FILENO, c, 1) == -1)
-					die("write:");
+				if (*c == '\r') {
+					addline(buf, pos);
+					memset(buf, 0, size);
+					pos = 0;
+				}
+				buf[pos++] = *c;
+				if (pos == size) {
+					size *= 2;
+					buf = earealloc(buf, size);
+				}
 			}
 		}
 	}
