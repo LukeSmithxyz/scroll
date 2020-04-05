@@ -283,21 +283,24 @@ scrollup(int n)
 		bottom = TAILQ_NEXT(bottom, entries);
 		write(STDOUT_FILENO, scrollend->buf, scrollend->size);
 	}
+	dprintf(STDOUT_FILENO, "\033[%d;%dH", ws.ws_row, ws.ws_col);
 }
 
 void
 scrolldown(char *buf, size_t size, int n)
 {
+	if (bottom == NULL || bottom == TAILQ_FIRST(&head))
+		return;
 	bottom = TAILQ_PREV(bottom, tailhead, entries);
 	/* print n lines */
 	for (; n > 0 && bottom != NULL && bottom != TAILQ_FIRST(&head); n--) {
 		bottom = TAILQ_PREV(bottom, tailhead, entries);
 		write(STDOUT_FILENO, bottom->buf, bottom->size);
 	}
-	if (bottom == TAILQ_FIRST(&head)) {
+	if (n > 0 && bottom == TAILQ_FIRST(&head)) {
 		write(STDOUT_FILENO, "\033[?25h", 6);	/* show cursor */
 		write(STDOUT_FILENO, buf, size);
-	} else
+	} else if (bottom != NULL)
 		bottom = TAILQ_NEXT(bottom, entries);
 }
 
