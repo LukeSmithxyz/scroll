@@ -43,7 +43,7 @@
  #include <libutil.h>
 #endif
 
-#include "config.h"
+#define LENGTH(X)	(sizeof (X) / sizeof ((X)[0]))
 
 TAILQ_HEAD(tailhead, line) head;
 
@@ -59,6 +59,14 @@ int mfd;
 struct termios dfl;
 struct winsize ws;
 static bool altscreen = false;	/* is alternative screen active */
+
+struct rule {
+	const char *seq;
+	enum {SCROLL_UP, SCROLL_DOWN} event;
+	short lines;
+};
+
+#include "config.h"
 
 void
 die(const char *fmt, ...)
@@ -254,6 +262,9 @@ scrollup(int n)
 	int rows = 2;
 	struct line *scrollend = bottom;
 
+	if (n < 0)
+		n = ws.ws_row / (-n) > 0 ? ws.ws_row / (-n) : 1;
+
 	/* wind back scrollend pointer by one page plus n */
 	for (; scrollend != NULL && TAILQ_NEXT(scrollend, entries) != NULL &&
 	    rows < ws.ws_row + n; rows++)
@@ -291,6 +302,10 @@ scrolldown(char *buf, size_t size, int n)
 {
 	if (bottom == NULL || bottom == TAILQ_FIRST(&head))
 		return;
+
+	if (n < 0)
+		n = ws.ws_row / (-n) > 0 ? ws.ws_row / (-n) : 1;
+
 	bottom = TAILQ_PREV(bottom, tailhead, entries);
 	/* print n lines */
 	for (; n > 0 && bottom != NULL && bottom != TAILQ_FIRST(&head); n--) {
@@ -394,17 +409,24 @@ main(int argc, char *argv[])
 				die("read:");
 
 			input[n] = '\0';
-			if (!altscreen && strcmp(KB_SCROLL_UP, input) == 0)
-				scrollup(ws.ws_row);
-			else if (!altscreen && strcmp(MS_SCROLL_UP, input) == 0)
-				scrollup(1);
-			else if (!altscreen && strcmp(KB_SCROLL_DOWN, input) == 0)
-				scrolldown(buf, pos, ws.ws_row);
-			else if (!altscreen && strcmp(MS_SCROLL_DOWN, input) == 0)
-				scrolldown(buf, pos, 1);
-			else if (write(mfd, input, n) == -1)
+
+			if (altscreen)
+				goto noevent;
+
+			for (size_t i = 0; i < LENGTH(rules); i++) {
+				if (strcmp(rules[i].seq, input) == 0) {
+					if (rules[i].event == SCROLL_UP)
+						scrollup(rules[i].lines);
+					if (rules[i].event == SCROLL_DOWN)
+						scrolldown(buf, pos, rules[i].lines);
+					continue;
+				}
+			}
+ noevent:
+			if (write(mfd, input, n) == -1)
 				die("write:");
-			else if (bottom != TAILQ_FIRST(&head))
+
+			if (bottom != TAILQ_FIRST(&head))
 				jumpdown(buf, pos);
 		}
 		if (pfd[1].revents & POLLIN) {
