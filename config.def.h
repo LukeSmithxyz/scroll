@@ -1,9 +1,9 @@
 /*
- * Define ESC seqences to use for scroll events.
- * Use "cat -v" to figure out favorit key combination.
+ * Define ESC sequences to use for scroll events.
+ * Use "cat -v" to figure out favorite key combination.
  *
- * lines is the number of lines scrolled up or down.  If lines is negaive,
- * its the: -1 is 1/1.
+ * lines is the number of lines scrolled up or down.
+ * If lines is negative, its the fraction of the terminal size.
  */
 
 struct rule rules[] = {
