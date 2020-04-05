@@ -419,7 +419,7 @@ main(int argc, char *argv[])
 						scrollup(rules[i].lines);
 					if (rules[i].event == SCROLL_DOWN)
 						scrolldown(buf, pos, rules[i].lines);
-					continue;
+					goto out;
 				}
 			}
  noevent:
@@ -429,6 +429,7 @@ main(int argc, char *argv[])
 			if (bottom != TAILQ_FIRST(&head))
 				jumpdown(buf, pos);
 		}
+ out:
 		if (pfd[1].revents & POLLIN) {
 			ssize_t n = read(mfd, input, sizeof input);
 
