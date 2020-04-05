@@ -284,8 +284,10 @@ scrollup(int n)
 	write(STDOUT_FILENO, "\033[?25l", 6);
 
 	/* remove newline of first line as we are at 0,0 already */
-	if (scrollend->size > 2)
+	if (scrollend->size > 1 && scrollend->buf[0] == '\r' && scrollend->buf[1] == '\n')
 		write(STDOUT_FILENO, scrollend->buf + 2, scrollend->size - 2);
+	else
+		write(STDOUT_FILENO, scrollend->buf, scrollend->size);
 	bottom = TAILQ_NEXT(bottom, entries);
 
 	/* print rows lines and move bottom forward to the new screen bottom */
