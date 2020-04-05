@@ -4,3 +4,4 @@
    - configure option for scrollbackbuffer size
  * hotkey to dump buffer to file (like screen hardcopy)
  * screen refresh on window size change
+ * scroll back if screen was cleared (sh; ls; clear; scrollup())
