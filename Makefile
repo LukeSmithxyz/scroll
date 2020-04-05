@@ -10,6 +10,7 @@ config.h:
 	cp config.def.h config.h
 
 scroll: scroll.c config.h
+	$(CC) $(CFLAGS) $(CPPFLAGS) scroll.c $(LDLIBS) -o $@
 
 install: scroll
 	cp scroll ${BINDIR}
