@@ -21,6 +21,7 @@
 #include <sys/ioctl.h>
 #include <sys/wait.h>
 #include <sys/queue.h>
+#include <sys/resource.h>
 
 #include <assert.h>
 #include <errno.h>
@@ -333,9 +334,37 @@ jumpdown(char *buf, size_t size)
 	scrolldown(buf, size, ws.ws_row);
 }
 
+void
+usage(void) {
+	die("usage: scroll [-M] [-m mem] <program>");
+}
+
 int
 main(int argc, char *argv[])
 {
+	int ch;
+	struct rlimit rlimit;
+
+	if (getrlimit(RLIMIT_DATA, &rlimit) == -1)
+		die("getrlimit");
+
+	while ((ch = getopt(argc, argv, "Mm:")) != -1) {
+		switch (ch) {
+		case 'M':
+			rlimit.rlim_cur = rlimit.rlim_max;
+			break;
+		case 'm':
+			rlimit.rlim_cur = strtoull(optarg, NULL, 0);
+			if (errno != 0)
+				die("strtoull: %s", optarg);
+			break;
+		default:
+			usage();
+		}
+	}
+	argc -= optind;
+	argv += optind;
+
 	TAILQ_INIT(&head);
 
 	if (isatty(STDIN_FILENO) == 0)
@@ -343,8 +372,8 @@ main(int argc, char *argv[])
 	if (isatty(STDOUT_FILENO) == 0)
 		die("stdout it not a tty");
 
-	if (argc <= 1)
-		die("usage: scroll <program>");
+	if (argc < 1)
+		usage();
 
 	/* save terminal settings for resetting after exit */
 	if (tcgetattr(STDIN_FILENO, &dfl) == -1)
@@ -360,10 +389,14 @@ main(int argc, char *argv[])
 	if (child == -1)
 		die("forkpty:");
 	if (child == 0) {	/* child */
-		execvp(argv[1], argv + 1);
+		execvp(argv[0], argv);
 		perror("execvp");
 		_exit(127);
 	}
+
+	/* set maximum memory size for scrollback buffer */
+	if (setrlimit(RLIMIT_DATA, &rlimit) == -1)
+		die("setrlimit:");
 
 #ifdef __OpenBSD__
 	if (pledge("stdio tty proc", NULL) == -1)
