@@ -60,6 +60,7 @@ int mfd;
 struct termios dfl;
 struct winsize ws;
 static bool altscreen = false;	/* is alternative screen active */
+static bool doredraw = false;	/* redraw upon sigwinch */
 
 struct rule {
 	const char *seq;
@@ -110,6 +111,7 @@ sigwinch(int sig)
 	if (ioctl(mfd, TIOCSWINSZ, &ws) == -1)
 		die("ioctl:");
 	kill(-child, SIGWINCH);
+	doredraw = true;
 }
 
 void
@@ -255,6 +257,37 @@ addline(char *buf, size_t size)
 	bottom = line;
 
 	TAILQ_INSERT_HEAD(&head, line, entries);
+}
+
+void
+redraw()
+{
+	int rows = 0;
+
+	/* wind back bottom pointer by one page */
+	for (; bottom != NULL && TAILQ_NEXT(bottom, entries) != NULL &&
+	    rows < ws.ws_row; rows++)
+		bottom = TAILQ_NEXT(bottom, entries);
+
+	if (rows <= 0) {
+		return;
+	}
+
+	/* clear screen */
+	dprintf(STDOUT_FILENO, "\033[2J");
+	/* set cursor position to upper left corner */
+	write(STDOUT_FILENO, "\033[0;0H", 6);
+
+	/* remove newline of first line as we are at 0,0 already */
+	if (bottom->size > 0 && bottom->buf[0] == '\n')
+		write(STDOUT_FILENO, bottom->buf + 1, bottom->size - 1);
+	else
+		write(STDOUT_FILENO, bottom->buf, bottom->size);
+
+	for (; rows > 0; rows--) {
+		bottom = TAILQ_PREV(bottom, tailhead, entries);
+		write(STDOUT_FILENO, bottom->buf, bottom->size);
+	}
 }
 
 void
@@ -436,6 +469,12 @@ main(int argc, char *argv[])
 
 		if (poll(pfd, 2, -1) == -1 && errno != EINTR)
 			die("poll:");
+
+		if (doredraw) {
+			redraw();
+			doredraw = false;
+			continue;
+		}
 
 		if (pfd[0].revents & POLLIN) {
 			ssize_t n = read(STDIN_FILENO, input, sizeof(input)-1);
