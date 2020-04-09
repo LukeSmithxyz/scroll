@@ -1,6 +1,5 @@
  * strlen function which is aware of unicode
  * make scroll configurable by config.h in suckless style
-   - configure option for scroll length: nth-linewise and/or pagewise
    - configure option for scrollbackbuffer size
  * hotkey to dump buffer to file (like screen hardcopy)
  * screen refresh on window size change
