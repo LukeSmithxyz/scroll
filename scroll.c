@@ -296,7 +296,7 @@ scrollup(int n)
 		bottom = TAILQ_NEXT(bottom, entries);
 		write(STDOUT_FILENO, scrollend->buf, scrollend->size);
 	}
-	dprintf(STDOUT_FILENO, "\033[%d;%dH", ws.ws_row, ws.ws_col);
+	dprintf(STDOUT_FILENO, "\033[%d;0H", ws.ws_row);
 }
 
 void
