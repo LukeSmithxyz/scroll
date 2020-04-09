@@ -284,8 +284,8 @@ scrollup(int n)
 	write(STDOUT_FILENO, "\033[?25l", 6);
 
 	/* remove newline of first line as we are at 0,0 already */
-	if (scrollend->size > 1 && scrollend->buf[0] == '\r' && scrollend->buf[1] == '\n')
-		write(STDOUT_FILENO, scrollend->buf + 2, scrollend->size - 2);
+	if (scrollend->size > 0 && scrollend->buf[0] == '\n')
+		write(STDOUT_FILENO, scrollend->buf + 1, scrollend->size - 1);
 	else
 		write(STDOUT_FILENO, scrollend->buf, scrollend->size);
 	bottom = TAILQ_NEXT(bottom, entries);
@@ -451,7 +451,7 @@ main(int argc, char *argv[])
 				if (isaltscreen(*c))
 					continue;
 
-				if (*c == '\r') {
+				if (*c == '\n') {
 					addline(buf, pos);
 					memset(buf, 0, size);
 					pos = 0;
