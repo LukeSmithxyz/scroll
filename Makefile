@@ -4,9 +4,6 @@ include config.mk
 
 all: scroll
 
-clean:
-	rm -f scroll ptty
-
 config.h:
 	cp config.def.h config.h
 
@@ -24,7 +21,13 @@ test: scroll ptty
 	if ! ./ptty ./scroll true;  then exit 1; fi
 	if   ./ptty ./scroll false; then exit 1; fi
 
+clean:
+	rm -f scroll ptty
+
+distclean: clean
+	rm -f config.h
+
 .c:
 	$(CC) $(CFLAGS) $(CPPFLAGS) $(LDFLAGS) -o $@ $< -lutil
 
-.PHONY: all clean install test
+.PHONY: all install test clean distclean
