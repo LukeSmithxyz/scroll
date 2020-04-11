@@ -1,20 +1,21 @@
+.POSIX:
+
 include config.mk
 
-.PHONY: all clean install test
-
 all: scroll
+
 clean:
 	rm -f scroll ptty
 
 config.h:
 	cp config.def.h config.h
 
-scroll: scroll.c config.h
-	$(CC) $(CFLAGS) $(CPPFLAGS) scroll.c $(LDLIBS) -o $@
+scroll: config.h
 
 install: scroll
-	cp scroll ${BINDIR}
-	cp scroll.1 ${MAN1DIR}
+	mkdir -p $(BINDIR) $(MANDIR)/man1
+	cp -f scroll $(BINDIR)
+	cp -f scroll.1 $(MANDIR)/man1
 
 test: scroll ptty
 	# check usage
@@ -22,3 +23,8 @@ test: scroll ptty
 	# check exit passthrough of child
 	if ! ./ptty ./scroll true;  then exit 1; fi
 	if   ./ptty ./scroll false; then exit 1; fi
+
+.c:
+	$(CC) $(CFLAGS) $(CPPFLAGS) $(LDFLAGS) -o $@ $< -lutil
+
+.PHONY: all clean install test

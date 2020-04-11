@@ -1,10 +1,9 @@
 # paths
 PREFIX	= /usr/local
-BINDIR	= ${PREFIX}/bin
-MANDIR	= ${PREFIX}/share/man
-MAN1DIR	= ${MANDIR}/man1
+BINDIR	= $(PREFIX)/bin
+MANDIR	= $(PREFIX)/share/man
 
-CC ?= cc
-CFLAGS = -std=c99 -pedantic -Wall -Wextra -g
-LDLIBS += -lutil
-CPPFLAGS += -D_DEFAULT_SOURCE
+CPPFLAGS = -D_DEFAULT_SOURCE
+# if your system is not POSIX, add -std=c99 to CFLAGS
+CFLAGS = -Os
+LDFLAGS = -s
