@@ -7,7 +7,7 @@ all: scroll
 config.h:
 	cp config.def.h config.h
 
-scroll: config.h
+scroll: scroll.c config.h
 
 install: scroll
 	mkdir -p $(BINDIR) $(MANDIR)/man1
