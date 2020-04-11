@@ -441,12 +441,6 @@ main(int argc, char *argv[])
 	if (signal(SIGWINCH, sigwinch) == SIG_ERR)
 		die("signal:");
 
-	int f;
-	if ((f = fcntl(mfd, F_GETFL)) == -1)
-		die("fcntl:");
-	if (fcntl(mfd, F_SETFL, f /*| O_NONBLOCK*/) == -1)
-		die("fcntl:");
-
 	struct termios new = dfl;
 	cfmakeraw(&new);
 	new.c_cc[VMIN ] = 1;
