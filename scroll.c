@@ -27,6 +27,7 @@
 #include <errno.h>
 #include <fcntl.h>
 #include <poll.h>
+#include <pwd.h>
 #include <signal.h>
 #include <stdarg.h>
 #include <stdbool.h>
@@ -369,7 +370,7 @@ jumpdown(char *buf, size_t size)
 
 void
 usage(void) {
-	die("usage: scroll [-M] [-m mem] <program>");
+	die("usage: scroll [-M] [-m mem] [program]");
 }
 
 int
@@ -405,9 +406,6 @@ main(int argc, char *argv[])
 	if (isatty(STDOUT_FILENO) == 0)
 		die("stdout it not a tty");
 
-	if (argc < 1)
-		usage();
-
 	/* save terminal settings for resetting after exit */
 	if (tcgetattr(STDIN_FILENO, &dfl) == -1)
 		die("tcgetattr:");
@@ -422,7 +420,15 @@ main(int argc, char *argv[])
 	if (child == -1)
 		die("forkpty:");
 	if (child == 0) {	/* child */
-		execvp(argv[0], argv);
+		if (argc >= 1) {
+			execvp(argv[0], argv);
+		} else {
+			struct passwd *passwd = getpwuid(getuid());
+			if (passwd == NULL)
+				die("getpwid:");
+			execlp(passwd->pw_shell, passwd->pw_shell, NULL);
+		}
+
 		perror("execvp");
 		_exit(127);
 	}
