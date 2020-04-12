@@ -329,7 +329,7 @@ scrollup(int n)
 		bottom = TAILQ_NEXT(bottom, entries);
 		write(STDOUT_FILENO, scrollend->buf, scrollend->size);
 	}
-	/* move cursor from line n to the bottom */
+	/* move cursor from line n to the bottom left corner */
 	dprintf(STDOUT_FILENO, "\033[%d;0H", ws.ws_row);
 }
 
