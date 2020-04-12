@@ -473,7 +473,6 @@ main(int argc, char *argv[])
 		if (doredraw) {
 			redraw();
 			doredraw = false;
-			continue;
 		}
 
 		if (pfd[0].revents & POLLIN) {
