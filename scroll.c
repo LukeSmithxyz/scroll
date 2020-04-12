@@ -296,8 +296,8 @@ scrollup(int n)
 	int rows = 2;
 	struct line *scrollend = bottom;
 
-	if (n < 0)
-		n = ws.ws_row / (-n) > 0 ? ws.ws_row / (-n) : 1;
+	if (n < 0) /* scroll by fraction of window rows, but at least one line */
+		n = ws.ws_row > (-n) ? ws.ws_row / (-n) : 1;
 
 	/* wind back scrollend pointer by one page plus n */
 	for (; scrollend != NULL && TAILQ_NEXT(scrollend, entries) != NULL &&
@@ -338,8 +338,8 @@ scrolldown(char *buf, size_t size, int n)
 	if (bottom == NULL || bottom == TAILQ_FIRST(&head))
 		return;
 
-	if (n < 0)
-		n = ws.ws_row / (-n) > 0 ? ws.ws_row / (-n) : 1;
+	if (n < 0) /* scroll by fraction of window rows, but at least one line */
+		n = ws.ws_row > (-n) ? ws.ws_row / (-n) : 1;
 
 	bottom = TAILQ_PREV(bottom, tailhead, entries);
 	/* print n lines */
