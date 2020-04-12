@@ -360,6 +360,7 @@ jumpdown(char *buf, size_t size)
 {
 	int rows = ws.ws_row;
 
+	/* wind back by one page starting from the latest line */
 	bottom = TAILQ_FIRST(&head);
 	for (; TAILQ_NEXT(bottom, entries) != NULL && rows > 0; rows--)
 		bottom = TAILQ_NEXT(bottom, entries);
