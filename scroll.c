@@ -270,9 +270,8 @@ redraw()
 	    rows < ws.ws_row; rows++)
 		bottom = TAILQ_NEXT(bottom, entries);
 
-	if (rows <= 0) {
+	if (rows <= 0)
 		return;
-	}
 
 	/* clear screen */
 	dprintf(STDOUT_FILENO, "\033[2J");
@@ -307,9 +306,8 @@ scrollup(int n)
 
 	rows -= ws.ws_row;
 
-	if (rows <= 0) {
+	if (rows <= 0)
 		return;
-	}
 
 	/* move the text in terminal rows lines down */
 	dprintf(STDOUT_FILENO, "\033[%dT", rows);
