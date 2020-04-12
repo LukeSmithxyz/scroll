@@ -270,7 +270,7 @@ redraw()
 	    rows < ws.ws_row; rows++)
 		bottom = TAILQ_NEXT(bottom, entries);
 
-	if (rows <= 0)
+	if (rows == 0)
 		return;
 
 	/* clear screen */
@@ -329,6 +329,7 @@ scrollup(int n)
 		bottom = TAILQ_NEXT(bottom, entries);
 		write(STDOUT_FILENO, scrollend->buf, scrollend->size);
 	}
+	/* move cursor from line n to the bottom */
 	dprintf(STDOUT_FILENO, "\033[%d;0H", ws.ws_row);
 }
 
