@@ -449,8 +449,8 @@ main(int argc, char *argv[])
 
 	struct termios new = dfl;
 	cfmakeraw(&new);
-	new.c_cc[VMIN ] = 1;
-	new.c_cc[VTIME] = 0;
+	new.c_cc[VMIN ] = 1;	/* return read if at least one byte in buffer */
+	new.c_cc[VTIME] = 0;	/* no polling time for read from terminal */
 	if (tcsetattr(STDIN_FILENO, TCSANOW, &new) == -1)
 		die("tcsetattr:");
 
