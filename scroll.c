@@ -415,6 +415,11 @@ main(int argc, char *argv[])
 	if (ioctl(STDOUT_FILENO, TIOCGWINSZ, &ws) < 0)
 		die("ioctl:");
 
+	if (signal(SIGCHLD, sigchld) == SIG_ERR)
+		die("signal:");
+	if (signal(SIGWINCH, sigwinch) == SIG_ERR)
+		die("signal:");
+
 	child = forkpty(&mfd, NULL, &dfl, &ws);
 	if (child == -1)
 		die("forkpty:");
@@ -440,11 +445,6 @@ main(int argc, char *argv[])
 	if (pledge("stdio tty proc", NULL) == -1)
 		die("pledge:");
 #endif
-
-	if (signal(SIGCHLD, sigchld) == SIG_ERR)
-		die("signal:");
-	if (signal(SIGWINCH, sigwinch) == SIG_ERR)
-		die("signal:");
 
 	struct termios new = dfl;
 	cfmakeraw(&new);
