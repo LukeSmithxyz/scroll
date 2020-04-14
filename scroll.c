@@ -508,6 +508,8 @@ main(int argc, char *argv[])
 
 			if (n == -1 && errno != EINTR)
 				die("read:");
+			if (n == 0)	/* on exit of child we continue here */
+				continue; /* let signal handler catch SIGCHLD */
 
 			if (write(STDOUT_FILENO, input, n) == -1)
 				die("write:");
