@@ -519,6 +519,7 @@ main(int argc, char *argv[])
 				die("write:");
 
 			/* don't save clear screen esc sequences in log */
+			/* TODO: may need to check if it wasn't read in one string */
 			if (strcmp("\033[H\033[2J", input) == 0)
 				continue;
 
