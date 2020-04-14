@@ -370,7 +370,7 @@ jumpdown(char *buf, size_t size)
 
 void
 usage(void) {
-	die("usage: scroll [-M] [-m mem] [program]");
+	die("usage: scroll [-Mh] [-m mem] [program]");
 }
 
 int
@@ -382,7 +382,7 @@ main(int argc, char *argv[])
 	if (getrlimit(RLIMIT_DATA, &rlimit) == -1)
 		die("getrlimit");
 
-	while ((ch = getopt(argc, argv, "Mm:")) != -1) {
+	while ((ch = getopt(argc, argv, "Mm:h")) != -1) {
 		switch (ch) {
 		case 'M':
 			rlimit.rlim_cur = rlimit.rlim_max;
@@ -392,6 +392,7 @@ main(int argc, char *argv[])
 			if (errno != 0)
 				die("strtoull: %s", optarg);
 			break;
+		case 'h':
 		default:
 			usage();
 		}

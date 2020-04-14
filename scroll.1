@@ -21,7 +21,7 @@
 .Nd scrollback buffer
 .Sh SYNOPSIS
 .Nm
-.Op Fl M
+.Op Fl Mh
 .Op Fl m Ar size
 .Op program Op arg ...
 .Sh DESCRIPTION
@@ -38,6 +38,9 @@ starts the users default shell.
 .Pp
 The options are as follows:
 .Bl -tag -width Ds
+.It Fl h
+Shows usage of
+.Nm .
 .It Fl M
 Set memory limit used for scrollbackbuffer to maximum.
 .It Fl m Ar size
