@@ -239,8 +239,9 @@ skipesc(char c)
 			    strcmp(buf, "?47l"  ) == 0)
 				altscreen = false;
 
-			/* don't save clear screen esc sequences in log */
-			if (strcmp(buf, "H\033[2J") == 0)
+			/* don't save cursor move or clear screen */
+			/* esc sequences to log */
+			if (c == 'H' || strcmp(buf, "2J") == 0)
 				return true;
 		}
 		break;
