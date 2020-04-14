@@ -199,7 +199,7 @@ strelen(const char *buf, size_t size)
 
 /* detect alternative screen switching and clear screen */
 bool
-scipesc(char c)
+skipesc(char c)
 {
 	static enum {CHAR, BREK, ESC} state = CHAR;
 	static char buf[BUFSIZ];
@@ -526,7 +526,7 @@ main(int argc, char *argv[])
 			for (char *c = input; n-- > 0; c++) {
 				/* don't save alternative screen and */
 				/* clear screen esc sequences to scrollback */
-				if (scipesc(*c))
+				if (skipesc(*c))
 					continue;
 
 				if (*c == '\n') {
