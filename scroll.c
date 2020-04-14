@@ -402,10 +402,8 @@ main(int argc, char *argv[])
 
 	TAILQ_INIT(&head);
 
-	if (isatty(STDIN_FILENO) == 0)
-		die("stdin it not a tty");
-	if (isatty(STDOUT_FILENO) == 0)
-		die("stdout it not a tty");
+	if (isatty(STDIN_FILENO) == 0 || isatty(STDOUT_FILENO) == 0)
+		die("parent it not a tty");
 
 	/* save terminal settings for resetting after exit */
 	if (tcgetattr(STDIN_FILENO, &dfl) == -1)
