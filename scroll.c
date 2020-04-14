@@ -197,9 +197,9 @@ strelen(const char *buf, size_t size)
 	return len;
 }
 
-/* detect alternative screen switching */
+/* detect alternative screen switching and clear screen */
 bool
-isaltscreen(char c)
+scipesc(char c)
 {
 	static enum {CHAR, BREK, ESC} state = CHAR;
 	static char buf[BUFSIZ];
@@ -238,6 +238,10 @@ isaltscreen(char c)
 			    strcmp(buf, "?1047l") == 0 ||
 			    strcmp(buf, "?47l"  ) == 0)
 				altscreen = false;
+
+			/* don't save clear screen esc sequences in log */
+			if (strcmp(buf, "H\033[2J") == 0)
+				return true;
 		}
 		break;
 	}
@@ -518,15 +522,11 @@ main(int argc, char *argv[])
 			if (write(STDOUT_FILENO, input, n) == -1)
 				die("write:");
 
-			/* don't save clear screen esc sequences in log */
-			/* TODO: may need to check if it wasn't read in one string */
-			if (strcmp("\033[H\033[2J", input) == 0)
-				continue;
-
 			/* iterate over the input buffer */
 			for (char *c = input; n-- > 0; c++) {
-				/* don't save lines from alternative screen */
-				if (isaltscreen(*c))
+				/* don't save alternative screen and */
+				/* clear screen esc sequences to scrollback */
+				if (scipesc(*c))
 					continue;
 
 				if (*c == '\n') {
