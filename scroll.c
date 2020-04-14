@@ -466,7 +466,7 @@ main(int argc, char *argv[])
 	for (;;) {
 		char input[BUFSIZ];
 
-		if (poll(pfd, 2, -1) == -1 && errno != EINTR)
+		if (poll(pfd, LENGTH(pfd), -1) == -1 && errno != EINTR)
 			die("poll:");
 
 		if (doredraw) {
