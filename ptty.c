@@ -96,7 +96,8 @@ main(int argc, char *argv[])
 		die("close:");
 
 	char buf[BUFSIZ];
-	while (fgets(buf, sizeof buf, fh) != NULL);
+	while (fgets(buf, sizeof buf, fh) != NULL)
+		fputs(buf, stdout);
 
 	int status;
 	waitpid(pid, &status, 0);
