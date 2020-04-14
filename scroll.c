@@ -506,18 +506,20 @@ main(int argc, char *argv[])
 		}
  out:
 		if (pfd[1].revents & POLLIN) {
-			ssize_t n = read(mfd, input, sizeof input);
+			ssize_t n = read(mfd, input, sizeof(input)-1);
 
 			if (n == -1 && errno != EINTR)
 				die("read:");
 			if (n == 0)	/* on exit of child we continue here */
 				continue; /* let signal handler catch SIGCHLD */
 
+			input[n] = '\0';
+
 			if (write(STDOUT_FILENO, input, n) == -1)
 				die("write:");
 
 			/* don't save clear screen esc sequences in log */
-			if (strncmp("\033[H\033[2J", input, n) == 0)
+			if (strcmp("\033[H\033[2J", input) == 0)
 				continue;
 
 			/* iterate over the input buffer */
