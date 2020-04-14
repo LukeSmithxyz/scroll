@@ -4,6 +4,7 @@
 #include <inttypes.h>
 #include <limits.h>
 #include <stdarg.h>
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -39,7 +40,7 @@ die(const char *fmt, ...)
 void
 usage(void)
 {
-	fputs("ptty cmd\n", stderr);
+	fputs("ptty [-C] [-c cols] [-r rows] cmd\n", stderr);
 	exit(EXIT_FAILURE);
 }
 
@@ -48,8 +49,9 @@ main(int argc, char *argv[])
 {
 	struct winsize ws = {.ws_row = 25, .ws_col = 80, 0, 0};
 	int ch;
+	bool closeflag = false;
 
-	while ((ch = getopt(argc, argv, "c:r:h")) != -1) {
+	while ((ch = getopt(argc, argv, "c:r:Ch")) != -1) {
 		switch (ch) {
 		case 'c':	/* cols */
 			ws.ws_col = strtoimax(optarg, NULL, 10);
@@ -60,6 +62,9 @@ main(int argc, char *argv[])
 			ws.ws_row = strtoimax(optarg, NULL, 10);
 			if (errno != 0)
 				die("strtoimax: %s", optarg);
+			break;
+		case 'C':
+			closeflag = true;
 			break;
 		case 'h':
 		default:
@@ -87,11 +92,11 @@ main(int argc, char *argv[])
 	if (fh == NULL)
 		die("fdopen");
 
-	if (close(mfd) == -1)
+	if (closeflag && close(mfd) == -1)
 		die("close:");
 
-//	char buf[BUFSIZ];
-//	while (fgets(buf, sizeof buf, fh) != NULL);
+	char buf[BUFSIZ];
+	while (fgets(buf, sizeof buf, fh) != NULL);
 
 	int status;
 	waitpid(pid, &status, 0);
