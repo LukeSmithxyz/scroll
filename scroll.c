@@ -477,8 +477,10 @@ main(int argc, char *argv[])
 		if (pfd[0].revents & POLLIN) {
 			ssize_t n = read(STDIN_FILENO, input, sizeof(input)-1);
 
-			if (n <= 0 && errno != EINTR)
+			if (n == -1 && errno != EINTR)
 				die("read:");
+			if (n == 0)
+				break;
 
 			input[n] = '\0';
 
@@ -538,5 +540,13 @@ main(int argc, char *argv[])
 		}
 	}
 
-	return EXIT_SUCCESS;
+	if (close(mfd) == -1)
+		die("close:");
+
+	int status;
+	while ((pid = waitpid(-1, &status, WNOHANG)) > 0)
+		if (pid != child)
+			continue;
+
+	return WEXITSTATUS(status);
 }
