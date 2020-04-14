@@ -543,6 +543,7 @@ main(int argc, char *argv[])
 	if (close(mfd) == -1)
 		die("close:");
 
+	pid_t pid;
 	int status;
 	while ((pid = waitpid(-1, &status, WNOHANG)) > 0)
 		if (pid != child)

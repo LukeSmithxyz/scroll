@@ -87,8 +87,11 @@ main(int argc, char *argv[])
 	if (fh == NULL)
 		die("fdopen");
 
-	char buf[BUFSIZ];
-	while (fgets(buf, sizeof buf, fh) != NULL);
+	if (close(mfd) == -1)
+		die("close:");
+
+//	char buf[BUFSIZ];
+//	while (fgets(buf, sizeof buf, fh) != NULL);
 
 	int status;
 	waitpid(pid, &status, 0);
