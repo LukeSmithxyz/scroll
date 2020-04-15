@@ -251,6 +251,16 @@ skipesc(char c)
 }
 
 void
+getcursorposition(int *x, int *y)
+{
+	char input[BUFSIZ];
+	write(STDOUT_FILENO, "\033[6n", 4);
+	ssize_t n = read(STDIN_FILENO, input, sizeof(input)-1);
+	input[n] = '\0';
+	sscanf(input, "\033[%d;%dR", x, y);
+}
+
+void
 addline(char *buf, size_t size)
 {
 	struct line *line = eamalloc(sizeof *line);
@@ -268,11 +278,13 @@ addline(char *buf, size_t size)
 void
 redraw()
 {
-	int rows = 0;
+	int rows = 0, x, y;
+
+	getcursorposition(&x, &y);
 
 	/* wind back bottom pointer by one page */
 	for (; bottom != NULL && TAILQ_NEXT(bottom, entries) != NULL &&
-	    rows < ws.ws_row; rows++)
+	    rows < x - 1; rows++)
 		bottom = TAILQ_NEXT(bottom, entries);
 
 	if (rows == 0)
@@ -298,18 +310,20 @@ redraw()
 void
 scrollup(int n)
 {
-	int rows = 2;
+	int rows = 2, x, y;
 	struct line *scrollend = bottom;
+
+	getcursorposition(&x, &y);
 
 	if (n < 0) /* scroll by fraction of ws.ws_row, but at least one line */
 		n = ws.ws_row > (-n) ? ws.ws_row / (-n) : 1;
 
 	/* wind back scrollend pointer by one page plus n */
 	for (; scrollend != NULL && TAILQ_NEXT(scrollend, entries) != NULL &&
-	    rows < ws.ws_row + n; rows++)
+	    rows < x + n; rows++)
 		scrollend = TAILQ_NEXT(scrollend, entries);
 
-	rows -= ws.ws_row;
+	rows -= x;
 
 	if (rows <= 0)
 		return;
@@ -334,8 +348,8 @@ scrollup(int n)
 		bottom = TAILQ_NEXT(bottom, entries);
 		write(STDOUT_FILENO, scrollend->buf, scrollend->size);
 	}
-	/* move cursor from line n to the bottom left corner */
-	dprintf(STDOUT_FILENO, "\033[%d;0H", ws.ws_row);
+	/* move cursor from line n to the old bottom position */
+	dprintf(STDOUT_FILENO, "\033[%d;0H", x);
 }
 
 void
