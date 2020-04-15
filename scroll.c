@@ -520,8 +520,10 @@ main(int argc, char *argv[])
 
 			input[n] = '\0';
 
-			if (write(STDOUT_FILENO, input, n) == -1)
-				die("write:");
+			/* don't print child output while scrolling */
+			if (bottom == TAILQ_FIRST(&head))
+				if (write(STDOUT_FILENO, input, n) == -1)
+					die("write:");
 
 			/* iterate over the input buffer */
 			for (char *c = input; n-- > 0; c++) {
