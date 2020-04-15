@@ -3,6 +3,7 @@
 #include <errno.h>
 #include <inttypes.h>
 #include <limits.h>
+#include <poll.h>
 #include <stdarg.h>
 #include <stdbool.h>
 #include <stdio.h>
@@ -88,16 +89,42 @@ main(int argc, char *argv[])
 	}
 
 	/* parent */
-	FILE *fh = fdopen(mfd, "rw");
-	if (fh == NULL)
-		die("fdopen");
 
 	if (closeflag && close(mfd) == -1)
 		die("close:");
 
-	char buf[BUFSIZ];
-	while (fgets(buf, sizeof buf, fh) != NULL)
-		fputs(buf, stdout);
+	struct pollfd pfd[2] = {
+		{ STDIN_FILENO, POLLIN, 0},
+		{ mfd,          POLLIN, 0}
+	};
+
+	for (;;) {
+		char buf[BUFSIZ];
+		ssize_t n;
+		int r;
+
+		if ((r = poll(pfd, 2, -1)) == -1)
+			die("poll:");
+
+		if (pfd[0].revents & POLLIN) {
+			if ((n = read(STDIN_FILENO, buf, sizeof buf)) == -1)
+				die("read:");
+			if (n == 0) break;
+			if (write(mfd, buf, n) == -1)
+				die("write:");
+		}
+
+		if (pfd[1].revents & POLLIN) {
+			if ((n = read(mfd, buf, sizeof buf)) == -1)
+				die("read:");
+			if (n == 0) break;
+			if (write(STDOUT_FILENO, buf, n) == -1)
+				die("write:");
+		}
+
+		if (pfd[0].revents & POLLHUP || pfd[1].revents & POLLHUP)
+			break;
+	}
 
 	int status;
 	waitpid(pid, &status, 0);
