@@ -254,10 +254,17 @@ void
 getcursorposition(int *x, int *y)
 {
 	char input[BUFSIZ];
-	write(STDOUT_FILENO, "\033[6n", 4);
-	ssize_t n = read(STDIN_FILENO, input, sizeof(input)-1);
+	ssize_t n;
+
+	if (write(STDOUT_FILENO, "\033[6n", 4) < 0)
+		die("requesting cursor position");
+
+	if ((n = read(STDIN_FILENO, input, sizeof(input)-1)) < 0)
+		die("reading cursor position");
 	input[n] = '\0';
-	sscanf(input, "\033[%d;%dR", x, y);
+
+	if (sscanf(input, "\033[%d;%dR", x, y) != 2)
+		die("parsing cursor position");
 }
 
 void
