@@ -93,6 +93,7 @@ main(int argc, char *argv[])
 	if (closeflag && close(mfd) == -1)
 		die("close:");
 
+	int pfds = 2;
 	struct pollfd pfd[2] = {
 		{ STDIN_FILENO, POLLIN, 0},
 		{ mfd,          POLLIN, 0}
@@ -103,13 +104,18 @@ main(int argc, char *argv[])
 		ssize_t n;
 		int r;
 
-		if ((r = poll(pfd, 2, -1)) == -1)
+		if ((r = poll(pfd, pfds, -1)) == -1)
 			die("poll:");
 
 		if (pfd[0].revents & POLLIN) {
 			if ((n = read(STDIN_FILENO, buf, sizeof buf)) == -1)
 				die("read:");
-			if (n == 0) break;
+			if (n == 0) {
+				close(mfd);
+				//pfds = 1;
+				pfd[0].fd = -1;
+				break;
+			}
 			if (write(mfd, buf, n) == -1)
 				die("write:");
 		}
@@ -122,7 +128,12 @@ main(int argc, char *argv[])
 				die("write:");
 		}
 
-		if (pfd[0].revents & POLLHUP || pfd[1].revents & POLLHUP)
+		if (pfd[0].revents & POLLHUP) {
+			//pfds = 1;
+			pfd[0].fd = -1;
+			close(mfd);
+		}
+		if (pfd[1].revents & POLLHUP)
 			break;
 	}
 
