@@ -38,4 +38,4 @@ dist: clean
 .c:
 	$(CC) $(CFLAGS) $(CPPFLAGS) $(LDFLAGS) -o $@ $< -lutil
 
-.PHONY: all install test clean distclean
+.PHONY: all install test clean distclean dist
