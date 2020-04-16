@@ -27,6 +27,14 @@ clean:
 distclean: clean
 	rm -f config.h
 
+dist: clean
+	mkdir -p scroll-$(VERSION)
+	cp -R README scroll.1 TODO Makefile config.mk config.def.h \
+		ptty.c scroll.c \
+		scroll-$(VERSION)
+	tar -cf - scroll-$(VERSION) | gzip > scroll-$(VERSION).tar.gz
+	rm -rf scroll-$(VERSION)
+
 .c:
 	$(CC) $(CFLAGS) $(CPPFLAGS) $(LDFLAGS) -o $@ $< -lutil
 
