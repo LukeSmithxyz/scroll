@@ -79,8 +79,8 @@ main(int argc, char *argv[])
 		usage();
 
 	int mfd;
-	pid_t pid = forkpty(&mfd, NULL, NULL, &ws);
-	switch (pid) {
+	pid_t child = forkpty(&mfd, NULL, NULL, &ws);
+	switch (child) {
 	case -1:
 		die("forkpty");
 	case  0: /* child */
@@ -138,8 +138,11 @@ main(int argc, char *argv[])
 			break;
 	}
 
+	pid_t pid;
 	int status;
-	waitpid(pid, &status, 0);
+	while ((pid = waitpid(-1, &status, WNOHANG)) > 0)
+		if (pid != child)
+			continue;
 
 	return WEXITSTATUS(status);
 }
