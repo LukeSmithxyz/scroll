@@ -138,11 +138,9 @@ main(int argc, char *argv[])
 			break;
 	}
 
-	pid_t pid;
 	int status;
-	while ((pid = waitpid(-1, &status, WNOHANG)) > 0)
-		if (pid != child)
-			continue;
+	if (waitpid(child, &status, 0) != child)
+		die("waitpid:");
 
 	return WEXITSTATUS(status);
 }
