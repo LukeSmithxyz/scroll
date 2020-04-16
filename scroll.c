@@ -480,6 +480,9 @@ main(int argc, char *argv[])
 			doredraw = false;
 		}
 
+		if (pfd[0].revents & POLLHUP || pfd[1].revents & POLLHUP)
+			break;
+
 		if (pfd[0].revents & POLLIN) {
 			ssize_t n = read(STDIN_FILENO, input, sizeof(input)-1);
 
