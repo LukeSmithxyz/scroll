@@ -111,9 +111,8 @@ main(int argc, char *argv[])
 			if ((n = read(STDIN_FILENO, buf, sizeof buf)) == -1)
 				die("read:");
 			if (n == 0) {
-				close(mfd);
-				//pfds = 1;
 				pfd[0].fd = -1;
+				close(mfd);
 				break;
 			}
 			if (write(mfd, buf, n) == -1)
@@ -129,9 +128,9 @@ main(int argc, char *argv[])
 		}
 
 		if (pfd[0].revents & POLLHUP) {
-			//pfds = 1;
 			pfd[0].fd = -1;
 			close(mfd);
+			break;
 		}
 		if (pfd[1].revents & POLLHUP)
 			break;
