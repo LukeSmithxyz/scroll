@@ -122,26 +122,6 @@ reset(void)
 		die("tcsetattr:");
 }
 
-/* error avoiding malloc */
-void *
-eamalloc(size_t size)
-{
-	void *mem;
-
-	while ((mem = malloc(size)) == NULL) {
-		struct line *line = TAILQ_LAST(&head, tailhead);
-
-		if (line == NULL)
-			die("malloc:");
-
-		TAILQ_REMOVE(&head, line, entries);
-		free(line->buf);
-		free(line);
-	}
-
-	return mem;
-}
-
 /* error avoiding remalloc */
 void *
 earealloc(void *ptr, size_t size)
@@ -270,11 +250,11 @@ getcursorposition(int *x, int *y)
 void
 addline(char *buf, size_t size)
 {
-	struct line *line = eamalloc(sizeof *line);
+	struct line *line = earealloc(NULL, sizeof *line);
 
 	line->size = size;
 	line->len = strelen(buf, size);
-	line->buf = eamalloc(size);
+	line->buf = earealloc(NULL, size);
 	memcpy(line->buf, buf, size);
 
 	bottom = line;
