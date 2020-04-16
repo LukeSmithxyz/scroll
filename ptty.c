@@ -112,7 +112,8 @@ main(int argc, char *argv[])
 				die("read:");
 			if (n == 0) {
 				pfd[0].fd = -1;
-				close(mfd);
+				if (close(mfd) == -1)
+					die("close:");
 				break;
 			}
 			if (write(mfd, buf, n) == -1)
@@ -129,7 +130,8 @@ main(int argc, char *argv[])
 
 		if (pfd[0].revents & POLLHUP) {
 			pfd[0].fd = -1;
-			close(mfd);
+			if (close(mfd) == -1)
+				die("close:");
 			break;
 		}
 		if (pfd[1].revents & POLLHUP)
