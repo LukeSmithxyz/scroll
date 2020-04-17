@@ -357,6 +357,9 @@ scrolldown(char *buf, size_t size, int n)
 void
 jumpdown(char *buf, size_t size)
 {
+	if (bottom == NULL || bottom == TAILQ_FIRST(&head))
+		return;
+
 	int rows = ws.ws_row;
 
 	/* wind back by one page starting from the latest line */
