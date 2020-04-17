@@ -90,19 +90,6 @@ die(const char *fmt, ...)
 }
 
 void
-sigchld(int sig)
-{
-	pid_t pid;
-	int status;
-
-	assert(sig == SIGCHLD);
-
-	while ((pid = waitpid(-1, &status, WNOHANG)) > 0)
-		if (pid == child)
-			exit(WEXITSTATUS(status));
-}
-
-void
 sigwinch(int sig)
 {
 	assert(sig == SIGWINCH);
@@ -421,8 +408,6 @@ main(int argc, char *argv[])
 	if (ioctl(STDOUT_FILENO, TIOCGWINSZ, &ws) < 0)
 		die("ioctl:");
 
-	if (signal(SIGCHLD, sigchld) == SIG_ERR)
-		die("signal:");
 	if (signal(SIGWINCH, sigwinch) == SIG_ERR)
 		die("signal:");
 
@@ -553,11 +538,9 @@ main(int argc, char *argv[])
 	if (close(mfd) == -1)
 		die("close:");
 
-	pid_t pid;
 	int status;
-	while ((pid = waitpid(-1, &status, WNOHANG)) > 0)
-		if (pid != child)
-			continue;
+	if (waitpid(child, &status, 0) == -1)
+		die("waitpid:");
 
 	return WEXITSTATUS(status);
 }
