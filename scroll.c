@@ -314,16 +314,22 @@ scrollup(int n)
 		write(STDOUT_FILENO, scrollend->buf + 1, scrollend->size - 1);
 	else
 		write(STDOUT_FILENO, scrollend->buf, scrollend->size);
-	bottom = TAILQ_NEXT(bottom, entries);
+	if ( x + n >= ws.ws_row)
+		bottom = TAILQ_NEXT(bottom, entries);
 
 	/* print rows lines and move bottom forward to the new screen bottom */
 	for (; rows > 1; rows--) {
 		scrollend = TAILQ_PREV(scrollend, tailhead, entries);
-		bottom = TAILQ_NEXT(bottom, entries);
+		if ( x + n >= ws.ws_row)
+			bottom = TAILQ_NEXT(bottom, entries);
 		write(STDOUT_FILENO, scrollend->buf, scrollend->size);
 	}
 	/* move cursor from line n to the old bottom position */
-	dprintf(STDOUT_FILENO, "\033[%d;0H", x);
+	if (x + n < ws.ws_row) {
+		dprintf(STDOUT_FILENO, "\033[%d;%dH", x + n, y);
+		write(STDOUT_FILENO, "\033[?25h", 6);	/* show cursor */
+	} else
+		dprintf(STDOUT_FILENO, "\033[%d;0H", ws.ws_row);
 }
 
 void
