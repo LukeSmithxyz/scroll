@@ -232,6 +232,9 @@ getcursorposition(int *x, int *y)
 
 	if (sscanf(input, "\033[%d;%dR", x, y) != 2)
 		die("parsing cursor position");
+
+	if (x <= 0 || y <= 0)
+		die("invalid cursor position");
 }
 
 void
