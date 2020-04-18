@@ -259,9 +259,9 @@ redraw()
 
 	getcursorposition(&x, &y);
 
-	/* wind back bottom pointer by one page */
+	/* wind back bottom pointer by shown history */
 	for (; bottom != NULL && TAILQ_NEXT(bottom, entries) != NULL &&
-	    rows < x - 1; rows++)
+	    rows < x - 2; rows++)
 		bottom = TAILQ_NEXT(bottom, entries);
 
 	if (rows == 0)
@@ -282,6 +282,8 @@ redraw()
 		bottom = TAILQ_PREV(bottom, tailhead, entries);
 		write(STDOUT_FILENO, bottom->buf, bottom->size);
 	}
+	/* add new line in front of the shell prompt */
+	write(STDOUT_FILENO, "\n", 1);
 }
 
 void
