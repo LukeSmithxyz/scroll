@@ -121,9 +121,19 @@ main(int argc, char *argv[])
 		}
 
 		if (pfd[1].revents & POLLIN) {
-			if ((n = read(mfd, buf, sizeof buf)) == -1)
+			if ((n = read(mfd, buf, sizeof(buf)-1)) == -1)
 				die("read:");
+
 			if (n == 0) break;
+
+			buf[n] = '\0';
+
+			/* handle cursor position request */
+			if (strcmp("\033[6n", buf) == 0) {
+				dprintf(mfd, "\033[%d;%dR", 1, 1);
+				break;
+			}
+
 			if (write(STDOUT_FILENO, buf, n) == -1)
 				die("write:");
 		}
