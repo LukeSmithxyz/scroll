@@ -304,7 +304,7 @@ scrollup(int n)
 
 	rows -= x;
 
-	if (rows <= 0)
+	if (scrollend == NULL || rows <= 0)
 		return;
 
 	/* move the text in terminal rows lines down */
