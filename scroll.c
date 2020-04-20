@@ -291,19 +291,22 @@ scrollup(int n)
 	int rows = 2, x, y;
 	struct line *scrollend = bottom;
 
+	if (bottom == NULL)
+		return;
+
 	getcursorposition(&x, &y);
 
 	if (n < 0) /* scroll by fraction of ws.ws_row, but at least one line */
 		n = ws.ws_row > (-n) ? ws.ws_row / (-n) : 1;
 
 	/* wind back scrollend pointer by one page plus n */
-	for (; scrollend != NULL && TAILQ_NEXT(scrollend, entries) != NULL &&
+	for (; TAILQ_NEXT(scrollend, entries) != NULL &&
 	    rows < x + n; rows++)
 		scrollend = TAILQ_NEXT(scrollend, entries);
 
 	rows -= x;
 
-	if (scrollend == NULL || rows <= 0)
+	if (rows <= 0)
 		return;
 
 	/* move the text in terminal rows lines down */
@@ -318,13 +321,13 @@ scrollup(int n)
 		write(STDOUT_FILENO, scrollend->buf + 1, scrollend->size - 1);
 	else
 		write(STDOUT_FILENO, scrollend->buf, scrollend->size);
-	if ( x + n >= ws.ws_row)
+	if (x + n >= ws.ws_row)
 		bottom = TAILQ_NEXT(bottom, entries);
 
 	/* print rows lines and move bottom forward to the new screen bottom */
 	for (; rows > 1; rows--) {
 		scrollend = TAILQ_PREV(scrollend, tailhead, entries);
-		if ( x + n >= ws.ws_row)
+		if (x + n >= ws.ws_row)
 			bottom = TAILQ_NEXT(bottom, entries);
 		write(STDOUT_FILENO, scrollend->buf, scrollend->size);
 	}
