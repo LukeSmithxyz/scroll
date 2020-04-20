@@ -226,12 +226,11 @@ getcursorposition(int *x, int *y)
 	if (write(STDOUT_FILENO, "\033[6n", 4) < 0)
 		die("requesting cursor position");
 
-	if ((n = read(STDIN_FILENO, input, sizeof(input)-1)) < 0)
-		die("reading cursor position");
-	input[n] = '\0';
-
-	if (sscanf(input, "\033[%d;%dR", x, y) != 2)
-		die("parsing cursor position: %s", input);
+	do {
+		if ((n = read(STDIN_FILENO, input, sizeof(input)-1)) < 0)
+			die("reading cursor position");
+		input[n] = '\0';
+	} while (sscanf(input, "\033[%d;%dR", x, y) != 2);
 
 	if (x <= 0 || y <= 0)
 		die("invalid cursor position: x=%d y=%d", x, y);
