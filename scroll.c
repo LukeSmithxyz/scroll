@@ -223,11 +223,11 @@ getcursorposition(int *x, int *y)
 	char input[BUFSIZ];
 	ssize_t n;
 
-	if (write(STDOUT_FILENO, "\033[6n", 4) < 0)
+	if (write(STDOUT_FILENO, "\033[6n", 4) == -1)
 		die("requesting cursor position");
 
 	do {
-		if ((n = read(STDIN_FILENO, input, sizeof(input)-1)) < 0)
+		if ((n = read(STDIN_FILENO, input, sizeof(input)-1)) == -1)
 			die("reading cursor position");
 		input[n] = '\0';
 	} while (sscanf(input, "\033[%d;%dR", x, y) != 2);
@@ -415,7 +415,7 @@ main(int argc, char *argv[])
 		die("atexit:");
 
 	/* get window size of the terminal */
-	if (ioctl(STDOUT_FILENO, TIOCGWINSZ, &ws) < 0)
+	if (ioctl(STDOUT_FILENO, TIOCGWINSZ, &ws) == -1)
 		die("ioctl:");
 
 	if (signal(SIGWINCH, sigwinch) == SIG_ERR)
