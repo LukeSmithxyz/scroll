@@ -1,5 +1,5 @@
-This program provides a scroll back buffer for a terminals like st(1).
-It should run on any Unix-like system.
+This program provides a scroll back buffer for a terminal like st(1).  It
+should run on any Unix-like system.
 
 At the moment it is in an experimental state.  Its not recommended for
 productive use.
