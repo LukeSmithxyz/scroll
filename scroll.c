@@ -232,7 +232,7 @@ getcursorposition(int *x, int *y)
 		input[n] = '\0';
 	} while (sscanf(input, "\033[%d;%dR", x, y) != 2);
 
-	if (x <= 0 || y <= 0)
+	if (*x <= 0 || *y <= 0)
 		die("invalid cursor position: x=%d y=%d", x, y);
 }
 
