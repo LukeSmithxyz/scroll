@@ -230,7 +230,7 @@ getcursorposition(int *x, int *y)
 		if ((n = read(STDIN_FILENO, input, sizeof(input)-1)) == -1)
 			die("reading cursor position");
 		input[n] = '\0';
-	} while (sscanf(input, "\033[%d;%dR", x, y) != 2);
+	} while (sscanf(input, "\033[%d;%dR", y, x) != 2);
 
 	if (*x <= 0 || *y <= 0)
 		die("invalid cursor position: x=%d y=%d", *x, *y);
@@ -258,7 +258,7 @@ redraw()
 
 	/* wind back bottom pointer by shown history */
 	for (; bottom != NULL && TAILQ_NEXT(bottom, entries) != NULL &&
-	    rows < x - 2; rows++)
+	    rows < y - 2; rows++)
 		bottom = TAILQ_NEXT(bottom, entries);
 
 	if (rows == 0)
@@ -299,10 +299,10 @@ scrollup(int n)
 
 	/* wind back scrollend pointer by one page plus n */
 	for (; TAILQ_NEXT(scrollend, entries) != NULL &&
-	    rows < x + n; rows++)
+	    rows < y + n; rows++)
 		scrollend = TAILQ_NEXT(scrollend, entries);
 
-	rows -= x;
+	rows -= y;
 
 	if (rows <= 0)
 		return;
@@ -319,19 +319,19 @@ scrollup(int n)
 		write(STDOUT_FILENO, scrollend->buf + 1, scrollend->size - 1);
 	else
 		write(STDOUT_FILENO, scrollend->buf, scrollend->size);
-	if (x + n >= ws.ws_row)
+	if (y + n >= ws.ws_row)
 		bottom = TAILQ_NEXT(bottom, entries);
 
 	/* print rows lines and move bottom forward to the new screen bottom */
 	for (; rows > 1; rows--) {
 		scrollend = TAILQ_PREV(scrollend, tailhead, entries);
-		if (x + n >= ws.ws_row)
+		if (y + n >= ws.ws_row)
 			bottom = TAILQ_NEXT(bottom, entries);
 		write(STDOUT_FILENO, scrollend->buf, scrollend->size);
 	}
 	/* move cursor from line n to the old bottom position */
-	if (x + n < ws.ws_row) {
-		dprintf(STDOUT_FILENO, "\033[%d;%dH", x + n, y);
+	if (y + n < ws.ws_row) {
+		dprintf(STDOUT_FILENO, "\033[%d;%dH", y + n, y);
 		write(STDOUT_FILENO, "\033[?25h", 6);	/* show cursor */
 	} else
 		dprintf(STDOUT_FILENO, "\033[%d;0H", ws.ws_row);
