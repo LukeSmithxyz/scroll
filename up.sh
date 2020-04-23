@@ -1,6 +1,7 @@
 #!/bin/sh
 
 set -eu
+export POSIXLY_CORRECT=1
 
 jot 50 > tmp.log
 
