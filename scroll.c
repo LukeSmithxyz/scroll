@@ -246,8 +246,6 @@ addline(char *buf, size_t size)
 	line->buf = earealloc(NULL, size);
 	memcpy(line->buf, buf, size);
 
-	bottom = line;
-
 	TAILQ_INSERT_HEAD(&head, line, entries);
 }
 
@@ -536,6 +534,13 @@ main(int argc, char *argv[])
 
 				if (*c == '\n') {
 					addline(buf, pos);
+					/* only advance bottom if scroll is */
+					/* at the end of the scroll back */
+					if (bottom == NULL ||
+					    TAILQ_PREV(bottom, tailhead,
+					      entries) == TAILQ_FIRST(&head))
+						bottom = TAILQ_FIRST(&head);
+
 					memset(buf, 0, size);
 					pos = 0;
 				}
