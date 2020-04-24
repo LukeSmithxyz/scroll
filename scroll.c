@@ -493,7 +493,8 @@ main(int argc, char *argv[])
 				goto noevent;
 
 			for (size_t i = 0; i < LENGTH(rules); i++) {
-				if (strcmp(rules[i].seq, input) == 0) {
+				if (strncmp(rules[i].seq, input,
+				    strlen(rules[i].seq)) == 0) {
 					if (rules[i].event == SCROLL_UP)
 						scrollup(rules[i].lines);
 					if (rules[i].event == SCROLL_DOWN)
