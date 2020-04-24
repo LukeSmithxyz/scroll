@@ -25,7 +25,7 @@ clean:
 	rm -f scroll ptty
 
 distclean: clean
-	rm -f config.h
+	rm -f config.h scroll-$(VERSION).tar.gz
 
 dist: clean
 	mkdir -p scroll-$(VERSION)
