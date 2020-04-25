@@ -208,7 +208,7 @@ skipesc(char c)
 
 			/* don't save cursor move or clear screen */
 			/* esc sequences to log */
-			if (c == 'H' || strcmp(buf, "2J") == 0)
+			if (c == 'H' || c == 'J')
 				return true;
 		}
 		break;
