@@ -284,9 +284,10 @@ redraw()
 		write(STDOUT_FILENO, bottom->buf, bottom->size);
 	}
 
-	if (bottom == TAILQ_FIRST(&head))
+	if (bottom == TAILQ_FIRST(&head)) {
 		write(STDOUT_FILENO, "\n", 1);
-	else
+		write(STDOUT_FILENO, "\033[?25h", 6);	/* show cursor */
+	} else
 		bottom = TAILQ_NEXT(bottom, entries);
 }
 
