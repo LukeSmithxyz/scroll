@@ -340,7 +340,7 @@ scrollup(int n)
 	}
 	/* move cursor from line n to the old bottom position */
 	if (y + n < ws.ws_row) {
-		dprintf(STDOUT_FILENO, "\033[%d;%dH", y + n, y);
+		dprintf(STDOUT_FILENO, "\033[%d;%dH", y + n, x);
 		write(STDOUT_FILENO, "\033[?25h", 6);	/* show cursor */
 	} else
 		dprintf(STDOUT_FILENO, "\033[%d;0H", ws.ws_row);
