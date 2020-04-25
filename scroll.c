@@ -254,15 +254,18 @@ redraw()
 {
 	int rows = 0, x, y;
 
+	if (bottom == NULL)
+		return;
+
 	getcursorposition(&x, &y);
+
+	if (y < ws.ws_row-1)
+	  y--;
 
 	/* wind back bottom pointer by shown history */
 	for (; bottom != NULL && TAILQ_NEXT(bottom, entries) != NULL &&
-	    rows < y - 2; rows++)
+	    rows < y - 1; rows++)
 		bottom = TAILQ_NEXT(bottom, entries);
-
-	if (rows == 0)
-		return;
 
 	/* clear screen */
 	dprintf(STDOUT_FILENO, "\033[2J");
@@ -275,12 +278,16 @@ redraw()
 	else
 		write(STDOUT_FILENO, bottom->buf, bottom->size);
 
-	for (; rows > 0; rows--) {
+	for (rows = ws.ws_row; rows > 0 &&
+	    TAILQ_PREV(bottom, tailhead, entries) != NULL; rows--) {
 		bottom = TAILQ_PREV(bottom, tailhead, entries);
 		write(STDOUT_FILENO, bottom->buf, bottom->size);
 	}
-	/* add new line in front of the shell prompt */
-	write(STDOUT_FILENO, "\n", 1);
+
+	if (bottom == TAILQ_FIRST(&head))
+		write(STDOUT_FILENO, "\n", 1);
+	else
+		bottom = TAILQ_NEXT(bottom, entries);
 }
 
 void
