@@ -20,6 +20,7 @@ test: scroll ptty
 	# check exit passthrough of child
 	if ! ./ptty ./scroll true;  then exit 1; fi
 	if   ./ptty ./scroll false; then exit 1; fi
+	./up.sh
 
 clean:
 	rm -f scroll ptty
