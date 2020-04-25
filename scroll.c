@@ -285,6 +285,7 @@ redraw()
 	}
 
 	if (bottom == TAILQ_FIRST(&head)) {
+		/* add new line in front of the shell prompt */
 		write(STDOUT_FILENO, "\n", 1);
 		write(STDOUT_FILENO, "\033[?25h", 6);	/* show cursor */
 	} else
