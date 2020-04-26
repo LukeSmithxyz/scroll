@@ -6,3 +6,12 @@ productive use.
 
 The initial version of this program is from Roberto E. Vargas Caballero:
 	https://lists.suckless.org/dev/1703/31256.html
+
+What is the performance impact of scroll?
+
+	indirect	OpenBSD
+-------------------------------
+	0x		 7.53 s
+	1x		10.10 s
+	2x		12.00 s
+	3x		13.73 s
