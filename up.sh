@@ -5,7 +5,7 @@ export POSIXLY_CORRECT=1
 
 i=1
 while test $i -lt 50; do
-	print $i
+	echo $i
 	i=$((i + 1))
 done > tmp.log
 
