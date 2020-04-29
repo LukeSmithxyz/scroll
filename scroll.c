@@ -295,7 +295,7 @@ redraw()
 void
 scrollup(int n)
 {
-	int rows = 2, x, y;
+	int rows = 2, x, y, extra = 0;
 	struct line *scrollend = bottom;
 
 	if (bottom == NULL)
@@ -306,18 +306,24 @@ scrollup(int n)
 	if (n < 0) /* scroll by fraction of ws.ws_row, but at least one line */
 		n = ws.ws_row > (-n) ? ws.ws_row / (-n) : 1;
 
-	/* wind back scrollend pointer by one page plus n */
-	for (; TAILQ_NEXT(scrollend, entries) != NULL &&
-	    rows < y + n; rows++)
+	/* wind back scrollend pointer by the current screen */
+	while (rows < y && TAILQ_NEXT(scrollend, entries) != NULL) {
 		scrollend = TAILQ_NEXT(scrollend, entries);
-
-	rows -= y;
+		rows += (scrollend->len - 1) / ws.ws_col + 1;
+	}
 
 	if (rows <= 0)
 		return;
 
+	/* wind back scrollend pointer n lines */
+	for (rows = 0; rows + extra < n &&
+	    TAILQ_NEXT(scrollend, entries) != NULL; rows++) {
+		scrollend = TAILQ_NEXT(scrollend, entries);
+		extra += (scrollend->len - 1) / ws.ws_col;
+	}
+
 	/* move the text in terminal rows lines down */
-	dprintf(STDOUT_FILENO, "\033[%dT", rows);
+	dprintf(STDOUT_FILENO, "\033[%dT", n);
 	/* set cursor position to upper left corner */
 	write(STDOUT_FILENO, "\033[0;0H", 6);
 	/* hide cursor */
@@ -357,9 +363,10 @@ scrolldown(char *buf, size_t size, int n)
 
 	bottom = TAILQ_PREV(bottom, tailhead, entries);
 	/* print n lines */
-	for (; n > 0 && bottom != NULL && bottom != TAILQ_FIRST(&head); n--) {
+	while (n > 0 && bottom != NULL && bottom != TAILQ_FIRST(&head)) {
 		bottom = TAILQ_PREV(bottom, tailhead, entries);
 		write(STDOUT_FILENO, bottom->buf, bottom->size);
+		n -= (bottom->len - 1) / ws.ws_col + 1;
 	}
 	if (n > 0 && bottom == TAILQ_FIRST(&head)) {
 		write(STDOUT_FILENO, "\033[?25h", 6);	/* show cursor */
