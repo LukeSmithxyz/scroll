@@ -220,7 +220,7 @@ skipesc(char c)
 				case 'J':
 				case 'K':
 				case 'f':
-				return true;
+					return true;
 			}
 		}
 		break;
