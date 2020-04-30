@@ -96,8 +96,11 @@ sigwinch(int sig)
 
 	if (ioctl(STDOUT_FILENO, TIOCGWINSZ, &ws) == -1)
 		die("ioctl:");
-	if (ioctl(mfd, TIOCSWINSZ, &ws) == -1)
+	if (ioctl(mfd, TIOCSWINSZ, &ws) == -1) {
+		if (errno == EBADF)	/* child already exited */
+			return;
 		die("ioctl:");
+	}
 	kill(-child, SIGWINCH);
 	doredraw = true;
 }
