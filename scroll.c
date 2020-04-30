@@ -211,8 +211,17 @@ skipesc(char c)
 
 			/* don't save cursor move or clear screen */
 			/* esc sequences to log */
-			if (c == 'H' || c == 'J')
+			switch (c) {
+				case 'A':
+				case 'B':
+				case 'C':
+				case 'D':
+				case 'H':
+				case 'J':
+				case 'K':
+				case 'f':
 				return true;
+			}
 		}
 		break;
 	}
