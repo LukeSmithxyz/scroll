@@ -212,15 +212,15 @@ skipesc(char c)
 			/* don't save cursor move or clear screen */
 			/* esc sequences to log */
 			switch (c) {
-				case 'A':
-				case 'B':
-				case 'C':
-				case 'D':
-				case 'H':
-				case 'J':
-				case 'K':
-				case 'f':
-					return true;
+			case 'A':
+			case 'B':
+			case 'C':
+			case 'D':
+			case 'H':
+			case 'J':
+			case 'K':
+			case 'f':
+				return true;
 			}
 		}
 		break;
