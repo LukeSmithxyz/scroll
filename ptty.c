@@ -130,7 +130,7 @@ main(int argc, char *argv[])
 
 			/* handle cursor position request */
 			if (strcmp("\033[6n", buf) == 0) {
-				dprintf(mfd, "\033[25;1R", 1, 1);
+				dprintf(mfd, "\033[25;1R");
 				continue;
 			}
 
