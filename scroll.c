@@ -47,6 +47,8 @@
 
 #define LENGTH(X)	(sizeof (X) / sizeof ((X)[0]))
 
+const char *argv0;
+
 TAILQ_HEAD(tailhead, line) head;
 
 struct line {
@@ -402,7 +404,7 @@ jumpdown(char *buf, size_t size)
 
 void
 usage(void) {
-	die("usage: scroll [-Mh] [-m mem] [program]");
+	die("usage: %s [-Mvh] [-m mem] [program]", argv0);
 }
 
 int
@@ -411,10 +413,13 @@ main(int argc, char *argv[])
 	int ch;
 	struct rlimit rlimit;
 
+	argv0 = argv[0];
+
 	if (getrlimit(RLIMIT_DATA, &rlimit) == -1)
 		die("getrlimit");
 
-	while ((ch = getopt(argc, argv, "Mm:h")) != -1) {
+	const char *optstring = "Mm:vh";
+	while ((ch = getopt(argc, argv, optstring)) != -1) {
 		switch (ch) {
 		case 'M':
 			rlimit.rlim_cur = rlimit.rlim_max;
@@ -423,6 +428,9 @@ main(int argc, char *argv[])
 			rlimit.rlim_cur = strtoull(optarg, NULL, 0);
 			if (errno != 0)
 				die("strtoull: %s", optarg);
+			break;
+		case 'v':
+			die("%s " VERSION, argv0);
 			break;
 		case 'h':
 		default:
