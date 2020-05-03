@@ -2,6 +2,7 @@
 
 set -eu
 
+export POSIXLY_CORRECT=1
 num=1000000
 seq=seq
 
@@ -12,17 +13,17 @@ fi
 rm -f perf_*.log
 
 for i in `$seq 10`; do
-	/usr/bin/time st -e                      jot $num 2>>perf_0.log
+	/usr/bin/time st -e                      $seq $num 2>>perf_0.log
 done
 
 for i in `$seq 10`; do
-	/usr/bin/time st -e ./ptty               jot $num 2>>perf_1.log
+	/usr/bin/time st -e ./ptty               $seq $num 2>>perf_1.log
 done
 
 for i in `$seq 10`; do
-	/usr/bin/time st -e ./ptty ./ptty        jot $num 2>>perf_2.log
+	/usr/bin/time st -e ./ptty ./ptty        $seq $num 2>>perf_2.log
 done
 
 for i in `$seq 10`; do
-	/usr/bin/time st -e ./ptty ./ptty ./ptty jot $num 2>>perf_3.log
+	/usr/bin/time st -e ./ptty ./ptty ./ptty $seq $num 2>>perf_3.log
 done
