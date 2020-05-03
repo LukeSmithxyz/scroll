@@ -10,9 +10,9 @@ config.h:
 scroll: scroll.c config.h
 
 install: scroll
-	mkdir -p $(BINDIR) $(MANDIR)/man1
-	cp -f scroll $(BINDIR)
-	cp -f scroll.1 $(MANDIR)/man1
+	mkdir -p $(DESTDIR)$(BINDIR) $(DESTDIR)$(MANDIR)/man1
+	cp -f scroll $(DESTDIR)$(BINDIR)
+	cp -f scroll.1 $(DESTDIR)$(MANDIR)/man1
 
 test: scroll ptty
 	# check usage
