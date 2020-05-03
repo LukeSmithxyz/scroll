@@ -179,6 +179,8 @@ skipesc(char c)
 
 	switch (state) {
 	case CHAR:
+		if (c == '\r')
+			return true;
 		if (c == '\033')
 			state = BREK;
 		break;
