@@ -14,6 +14,9 @@ install: scroll
 	cp -f scroll $(DESTDIR)$(BINDIR)
 	cp -f scroll.1 $(DESTDIR)$(MANDIR)/man1
 
+uninstall:
+	rm -f $(DESTDIR)$(BINDIR)/scroll $(DESTDIR)$(MANDIR)/man1/scroll.1
+
 test: scroll ptty
 	# check usage
 	if ./ptty ./scroll -h; then exit 1; fi
