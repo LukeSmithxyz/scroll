@@ -582,6 +582,7 @@ main(int argc, char *argv[])
 
 					memset(buf, 0, size);
 					pos = 0;
+					buf[pos++] = '\r';
 				}
 				buf[pos++] = *c;
 				if (pos == size) {
