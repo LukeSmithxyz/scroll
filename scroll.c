@@ -179,8 +179,6 @@ skipesc(char c)
 
 	switch (state) {
 	case CHAR:
-		if (c == '\r')
-			return true;
 		if (c == '\033')
 			state = BREK;
 		break;
@@ -493,7 +491,7 @@ main(int argc, char *argv[])
 	if (tcsetattr(STDIN_FILENO, TCSANOW, &new) == -1)
 		die("tcsetattr:");
 
-	size_t size = BUFSIZ, pos = 0;
+	size_t size = BUFSIZ, len = 0, pos = 0;
 	char *buf = calloc(size, sizeof *buf);
 	if (buf == NULL)
 		die("calloc:");
@@ -536,7 +534,7 @@ main(int argc, char *argv[])
 					if (rules[i].event == SCROLL_UP)
 						scrollup(rules[i].lines);
 					if (rules[i].event == SCROLL_DOWN)
-						scrolldown(buf, pos,
+						scrolldown(buf, len,
 						    rules[i].lines);
 					goto out;
 				}
@@ -546,7 +544,7 @@ main(int argc, char *argv[])
 				die("write:");
 
 			if (bottom != TAILQ_FIRST(&head))
-				jumpdown(buf, pos);
+				jumpdown(buf, len);
 		}
  out:
 		if (pfd[1].revents & POLLIN) {
@@ -572,7 +570,7 @@ main(int argc, char *argv[])
 					continue;
 
 				if (*c == '\n') {
-					addline(buf, pos);
+					addline(buf, len);
 					/* only advance bottom if scroll is */
 					/* at the end of the scroll back */
 					if (bottom == NULL ||
@@ -581,11 +579,16 @@ main(int argc, char *argv[])
 						bottom = TAILQ_FIRST(&head);
 
 					memset(buf, 0, size);
-					pos = 0;
+					len = pos = 0;
 					buf[pos++] = '\r';
+				} else if (*c == '\r') {
+					pos = 0;
+					continue;
 				}
 				buf[pos++] = *c;
-				if (pos == size) {
+				if (pos > len)
+					len = pos;
+				if (len == size) {
 					size *= 2;
 					buf = earealloc(buf, size);
 				}
