@@ -34,7 +34,7 @@ distclean: clean
 dist: clean
 	mkdir -p scroll-$(VERSION)
 	cp -R README scroll.1 TODO Makefile config.mk config.def.h \
-		ptty.c scroll.c \
+		ptty.c scroll.c up.sh up.log \
 		scroll-$(VERSION)
 	tar -cf - scroll-$(VERSION) | gzip > scroll-$(VERSION).tar.gz
 	rm -rf scroll-$(VERSION)
