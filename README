@@ -22,7 +22,7 @@ as we thought in the fist place:
  2. scroll could not handle backward cursor jumps and editing of old lines
     properly.  We just handle current line editing and switching between
     alternative screens (curses mode).  For a proper end user experience we
-    would need to write complete new a terminal emulator like screen or tmux.
+    would need to write a completely new terminal emulator like screen or tmux.
 
 What is the performance impact of scroll?
 
