@@ -13,6 +13,7 @@ install: scroll
 	mkdir -p $(DESTDIR)$(BINDIR) $(DESTDIR)$(MANDIR)/man1
 	cp -f scroll $(DESTDIR)$(BINDIR)
 	cp -f scroll.1 $(DESTDIR)$(MANDIR)/man1
+	chmod 755 $(DESTDIR)$(BINDIR)/scroll
 
 uninstall:
 	rm -f $(DESTDIR)$(BINDIR)/scroll $(DESTDIR)$(MANDIR)/man1/scroll.1
